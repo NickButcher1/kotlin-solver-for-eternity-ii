@@ -66,9 +66,30 @@
 
 - Not attempted. Seen 1,445,073,698,679 on the forum which I need to verify. Also seen 1,596,901,885,652 using all five clue tiles.
 
-# Backtracker Results
+# Rust Backtracker Results
 
-These are the best results obtained with the backtracker.
+These are the best results obtained with the Rust backtracker.
+
+- 16x16 all tiles, scanrow, default order:
+  - 215 tiles (13x16+7) in 9 minutes (40B placed).
+  - Longest run: 150B placed in 2,205s, found 210x256, 211x70, 212x25, 213x5, 214x2, 215x1.
+  - Longest run: 261B placed in 5,166s, found 210x521, 211x188, 212x87, 213x53, 214x13, 215x3.
+
+- 16x16 all tiles, scanrow12, default order:
+  - 212 tiles in 330s.
+  - Longest run: 21B in 330s.
+
+- 16x16 all tiles, scanrow11, default order:
+  - 210 tiles in 440s.
+  - Longest run: 30B in 440s.
+
+- 16x16 all tiles, diagonal fill, default order:
+  - 200 tiles in 360s.
+  - Longest run: 300B placed in 3,049s.
+
+# Kotlin Backtracker Results
+
+These are the best results obtained with the Kotlin backtracker.
 
 - 16x16 all tiles
   - Scanrow, default order: 206 tiles (12x16+14) in 1 minute.

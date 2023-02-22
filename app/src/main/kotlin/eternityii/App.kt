@@ -3,6 +3,8 @@ package eternityii
 import eternityii.backtracker.Backtracker
 import eternityii.backtracker.DiagonalBacktrackerPath
 import eternityii.backtracker.EdgeBacktrackerPath
+import eternityii.backtracker.Scanrow11BacktrackerPath
+import eternityii.backtracker.Scanrow12BacktrackerPath
 import eternityii.backtracker.ScanrowBacktrackerPath
 import eternityii.backtracker.ScanrowMidsOnlyBacktrackerPath
 import eternityii.backtracker.ScanrowSquaresBacktrackerPath
@@ -12,6 +14,7 @@ import eternityii.builder.EdgeBuilder
 import eternityii.builder.QuadBuilder
 import eternityii.constraint.ConstraintSolver
 import eternityii.data.TileData
+import eternityii.rustgen.RustGen
 
 /**
  * Parameters - use any one of the following:
@@ -30,6 +33,8 @@ import eternityii.data.TileData
  * 'quad' to build all 2x2 mid and some 3x3 blocks
  *
  * 'clue' to print just the mandatory tile and four clue tiles.
+ *
+ * 'rustgen piecesfile rows cols' to generate Rust code for solving a specific puzzle.
  *
  * Extra parameters: use with any of the above:
  *
@@ -79,5 +84,18 @@ fun main(args: Array<String>) {
         "clue" -> ClueSolver(tileData).solve()
 
         "constraint" -> ConstraintSolver(tileData, verboseMode).solveAllCornerPermutations()
+
+        "rustgen" -> {
+            // path is only supported for a 16x16 board.
+            val path = when {
+                "scanrow" in args -> ScanrowBacktrackerPath
+                "scanrow11" in args -> Scanrow11BacktrackerPath
+                "scanrow12" in args -> Scanrow12BacktrackerPath
+                "diagonal" in args -> DiagonalBacktrackerPath
+                "square" in args -> ScanrowSquaresBacktrackerPath
+                else -> null
+            }
+            RustGen(args[1], path, "random" in args).generate()
+        }
     }
 }
