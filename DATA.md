@@ -80,12 +80,20 @@ These are the best results obtained with the Rust backtracker.
   - Longest run: 21B in 330s.
 
 - 16x16 all tiles, scanrow11, default order:
-  - 210 tiles in 440s.
-  - Longest run: 30B in 440s.
+  - 213 tiles in 1,634s.
+  - Longest run: 204B in 5,120s.
 
 - 16x16 all tiles, diagonal fill, default order:
   - 200 tiles in 360s.
   - Longest run: 300B placed in 3,049s.
+
+- 16x16 all tiles, expanding square fill, default order:
+  - 205 tiles in 1,100.
+  - Longest run: 141B placed in 1,593s.
+
+- 14x14 mids only, scanrow, default order:
+  - 178 tiles in 60s.
+  - Longest run: 5B placed in 77s.
 
 # Kotlin Backtracker Results
 

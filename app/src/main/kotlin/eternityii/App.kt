@@ -93,9 +93,15 @@ fun main(args: Array<String>) {
                 "scanrow12" in args -> Scanrow12BacktrackerPath
                 "diagonal" in args -> DiagonalBacktrackerPath
                 "square" in args -> ScanrowSquaresBacktrackerPath
+                "mids" in args -> ScanrowMidsOnlyBacktrackerPath
                 else -> null
             }
-            RustGen(args[1], path, "random" in args).generate()
+            RustGen(
+                inputFilename = args[1],
+                path = path,
+                randomOrder = "random" in args,
+                midsOnly = "mids" in args
+            ).generate()
         }
     }
 }
