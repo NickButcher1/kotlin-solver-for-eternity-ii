@@ -2,48 +2,56 @@
 
 ## Ways to join 1 corner + N edge tiles, clockwise
 
-- 1 tile (corner only) - 4
-- 2 tiles - 45
-- 3 tiles - 495
-- 4 tiles - 5,336
-- 5 tiles - 56,507
-- 6 tiles - 587,808
-- 7 tiles - 6,003,355
-- 8 tiles - 60,184,906
-- 9 tiles - 592,043,767
-- 10 tiles - 5,712,070,312
-- 11 tiles - 54,029,813,432
-- 12 tiles - 500,822,997,668
+| Tiles | Ways                 | Multiple | Time(s) |
+| ----- | -------------------- | -------- | ------- |
+|     1 |                    4 |          |         |
+|     2 |                   45 |    11.25 |         |
+|     3 |                  495 |    11.00 |         |
+|     4 |                5,336 |    10.78 |         |
+|     5 |               56,507 |    10.59 |         |
+|     6 |              587,808 |    10.40 |         |
+|     7 |            6,003,355 |    10.21 |         |
+|     8 |           60,184,906 |    10.03 |         |
+|     9 |          592,043,767 |     9.84 |       2 |
+|    10 |        5,712,070,312 |     9.65 |      30 |
+|    11 |       54,029,813,432 |     9.46 |         |
+|    12 |      500,822,997,668 |     9.27 |         |
 
 ## Ways to join 1 corner + N edge tiles, anticlockwise
 
-- 1 tile (corner only) - 4
-- 2 tiles - 45
-- 3 tiles - 495
-- 4 tiles - 5,300
-- 5 tiles - 56,197
-- 6 tiles - 585,136
-- 7 tiles - 5,981,169
-- 8 tiles - 60,010,343
+| Tiles | Ways                 | Multiple | Time(s) |
+| ----- | -------------------- | -------- | ------- |
+|     1 |                    4 |          |         |
+|     2 |                   45 |          |         |
+|     3 |                  495 |          |         |
+|     4 |                5,300 |          |         |
+|     5 |               56,197 |          |         |
+|     6 |              585,136 |          |         |
+|     7 |            5,981,169 |          |         |
+|     8 |           60,010,343 |          |         |
 
 ## Ways to join N edge tiles into a 1xN block
 
-- 1 tile - 56
-- 2 tiles - 613
-- 3 tiles - 6,600
-- 4 tiles - 69,827
-- 5 tiles - 725,643
-- 6 tiles - 7,404,390
-- 7 tiles - 74,158,615
+| Tiles | Ways                 | Multiple | Time(s) |
+| ----- | -------------------- | -------- | ------- |
+|     1 |                   56 |          |         |
+|     2 |                  613 |          |         |
+|     3 |                6,600 |          |         |
+|     4 |               69,827 |          |         |
+|     5 |              725,643 |          |         |
+|     6 |            7,404,390 |          |         |
+|     7 |           74,158,615 |          |         |
 
 ## Ways to join N mid tiles into a 1xN block (includes duplicate orientations)
 
-- 1 tile - 784
-- 2 tiles - 35,280
-- 3 tiles - 1,579,688
-- 4 tiles - 70,373,500
-- 5 tiles - 3,118,987,718
-- 6 tiles - 137,521,419,190
+| Tiles | Ways                 | Multiple | Time(s) |
+| ----- | -------------------- | -------- | ------- |
+|     1 |                  784 |          |         |
+|     2 |               35,280 |    45.00 |         |
+|     3 |            1,579,688 |    44.78 |         |
+|     4 |           70,373,500 |    44.55 |         |
+|     5 |        3,118,987,718 |    44.32 |         |
+|     6 |      137,521,419,190 |    44.09 |         |
 
 # Ways to make a square
 
@@ -91,9 +99,13 @@ These are the best results obtained with the Rust backtracker.
   - 205 tiles in 1,100.
   - Longest run: 141B placed in 1,593s.
 
-- 14x14 mids only, scanrow, default order:
-  - 178 tiles in 60s.
-  - Longest run: 5B placed in 77s.
+- 14x14 mids only, scanrow
+  - Default order:
+    - 181 tiles in 4,650s.
+    - Longest run: 247B placed in 4,650s.
+  - Random order:
+    - 185 tiles (13x14+3) in 20,460s. Found twice.
+    - Longest run: 1.8T placed in 52,980s (and 7 threads, averaging 1.7T placed per thread).
 
 # Kotlin Backtracker Results
 
@@ -115,5 +127,5 @@ These are the best results obtained with the Kotlin backtracker.
 # Colour Distribution
 
 - The distribution of (anticlockwise colour + clockwise colour) on the edge tiles is very uneven. Of the 25 possible pairs, only one pair does not exist. The others range in frequency from one to four tiles.
-- The distribution of the 17 mid colours on the 56 edge tiles is very uneven. Two colours occur once only, two colour occur six times, and the rest are in the range 2-5.
+- The distribution of the 17 mid colours on the 56 edge tiles is very uneven. Two colours occur once only, two colours occur six times, and the rest are in the range 2-5.
 - There are in theory 289 (17^2) ways that a tile can have two consecutive edge colours. But only 269 are actually used.

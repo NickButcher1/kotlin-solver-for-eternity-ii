@@ -19,7 +19,6 @@ private data class TileOri(
     val ori: Int,
     val biColour: Int
 )
-
 class RustGen(
     inputFilename: String,
     private val path: BacktrackerPath?,
@@ -28,6 +27,7 @@ class RustGen(
 ) {
     private val numRows: Int
     private val numCols: Int
+    private val numCells: Int
     private val numTiles: Int
     private val numMids: Int
     private val numEdges: Int
@@ -52,6 +52,7 @@ class RustGen(
     private val leftEdgesWithTwoColours: MutableMap<Int, MutableList<TileOri>> = mutableMapOf()
     private val midsWithTwoColours: MutableMap<Int, MutableList<TileOri>>
     private var runningCount = 2
+    private val addTileFunctions: MutableMap<Int, String> = mutableMapOf()
 
     init {
         println("RustGen: $inputFilename")
@@ -59,9 +60,10 @@ class RustGen(
         val firstLine = inputList[0].split(" ")
         numRows = firstLine[1].toInt()
         numCols = firstLine[0].toInt()
-        numTiles = numRows * numCols
+        numCells = numRows * numCols
         numMids = (numRows - 2) * (numCols - 2)
         numEdges = 2 * (numRows + numCols) - 8
+        numTiles = if (midsOnly) { numMids } else { numCells }
 
         originalFileTiles = inputList.subList(1, inputList.size).map {
             val splitString = it.split(" ")
@@ -163,17 +165,26 @@ class RustGen(
             }
         }
 
-        cornersWithClockwiseColour = buildCornersWithColour(Compass.NORTH.toInt())
-        cornersWithAnticlockwiseColour = buildCornersWithColour(Compass.EAST.toInt())
-        buildCornersWithTwoColours()
-        edgesWithClockwiseColour = buildEdgesWithColour(Compass.WEST.toInt())
-        edgesWithAnticlockwiseColour = buildEdgesWithColour(Compass.EAST.toInt())
-        buildEdgesWithTwoColours()
-        midsWithTwoColours = buildWithTwoColours(4 + numEdges, numTiles)
+        if (!midsOnly) {
+            cornersWithClockwiseColour = buildCornersWithColour(Compass.NORTH.toInt())
+            cornersWithAnticlockwiseColour = buildCornersWithColour(Compass.EAST.toInt())
+            buildCornersWithTwoColours()
+            edgesWithClockwiseColour = buildEdgesWithColour(Compass.WEST.toInt())
+            edgesWithAnticlockwiseColour = buildEdgesWithColour(Compass.EAST.toInt())
+            buildEdgesWithTwoColours()
+        } else {
+            cornersWithClockwiseColour = mutableMapOf()
+            cornersWithAnticlockwiseColour = mutableMapOf()
+            edgesWithClockwiseColour = mutableMapOf()
+            edgesWithAnticlockwiseColour = mutableMapOf()
+        }
+        midsWithTwoColours = buildWithTwoColours(4 + numEdges, numCells)
     }
 
     fun generate() {
-        File("../output/autogen.rs").bufferedWriter().use { out ->
+        val filename = if (midsOnly) { "autogenmids.rs" } else { "autogenfull.rs" }
+        File("../output/$filename").bufferedWriter().use { out ->
+            out.write("\nuse crate::Backtracker;")
             out.write("\nuse crate::celltype::{")
             out.write("\n    CellType, MID,")
             if (midsOnly) {
@@ -187,20 +198,21 @@ class RustGen(
                 out.write("\nuse crate::ori::{Ori, ANTICLOCKWISE_90, ANY, BASE, CLOCKWISE_90, HALF};")
             }
             out.write("\n")
+            out.write("\npub const NUM_CELLS: usize = $numCells;")
             out.write("\npub const NUM_TILES: usize = $numTiles;")
             out.write("\npub const NUM_ROWS: usize = $numRows;")
             out.write("\npub const NUM_COLS: usize = $numCols;")
             out.write("\n")
             out.write("\n// pub const NUM_CORNERS: u32 = 4;")
             out.write("\n// pub const NUM_EDGES: u32 = $numEdges;")
-            out.write("\npub const NUM_MIDS: u32 = $numMids;")
+            out.write("\n// pub const NUM_MIDS: usize = $numMids;")
             out.write("\n")
             out.write("\n// pub const NUM_COLOURS: u32 = $numColours;")
             out.write("\n// pub const NUM_COLOURS_INC_GREY: u32 = ${numColours + 1};")
             out.write("\n// pub const NUM_EDGE_COLOURS: u32 = ${numEdgeColours.size};")
             out.write("\n// pub const NUM_MID_COLOURS: u32 = ${numMidColours.size};")
             out.write("\n")
-            out.write("\npub const PLACE_MIDS_ONLY: bool = $midsOnly;")
+            out.write("\n#[cfg(feature = \"backtracker-mids\")]")
             out.write("\npub const ANY_COLOUR: u8 = $anyColour;")
             out.write("\n")
             out.write("\nconst INVALID_CELL_IDX: u8 = 255;")
@@ -215,8 +227,7 @@ class RustGen(
             out.write("\n")
 
             if (path != null) {
-                val numCells = if (midsOnly) { numMids } else { numTiles }
-                out.write("\npub const FILL_ORDER: [Cell; $numCells] = [")
+                out.write("\npub const FILL_ORDER: [Cell; NUM_TILES] = [")
 
                 var ignoredCells = 0
 
@@ -228,8 +239,9 @@ class RustGen(
                     cellMap[path.fillOrder[idx]] = idx
                 }
 
-                for (idxOfAll in 0 until numTiles) {
+                for (idxOfAll in 0 until numCells) {
                     if (path.fillOrder[idxOfAll] == -1) {
+                        addTileFunctions[idxOfAll] = "SHOULD NOT APPEAR IN OUTPUT"
                         ignoredCells++
                         continue
                     }
@@ -243,22 +255,22 @@ class RustGen(
                         else -> "ANY"
                     }
 
-                    val cellTypeString = when (path.tileTypes[idx]) {
+                    val (cellTypeString, addTileFunction) = when (path.tileTypes[idx]) {
                         TileType.CORNER ->
                             when (path.orientations[idx]) {
-                                Orientation.BASE -> "CORNER_BOTTOM_LEFT"
-                                Orientation.ANTICLOCKWISE_90 -> "CORNER_BOTTOM_RIGHT"
-                                Orientation.HALF -> "CORNER_TOP_RIGHT"
-                                Orientation.CLOCKWISE_90 -> "CORNER_TOP_LEFT"
+                                Orientation.BASE -> Pair("CORNER_BOTTOM_LEFT", "add_tile_bottom_left_corner")
+                                Orientation.ANTICLOCKWISE_90 -> Pair("CORNER_BOTTOM_RIGHT", "add_tile_final")
+                                Orientation.HALF -> Pair("CORNER_TOP_RIGHT", "add_tile_top_right_corner")
+                                Orientation.CLOCKWISE_90 -> Pair("CORNER_TOP_LEFT", "add_tile_0")
                                 else -> throw IllegalArgumentException()
                             }
 
                         TileType.EDGE ->
                             when (path.orientations[idx]) {
-                                Orientation.BASE -> "EDGE_BOTTOM"
-                                Orientation.ANTICLOCKWISE_90 -> "EDGE_RIGHT"
-                                Orientation.HALF -> "EDGE_TOP"
-                                Orientation.CLOCKWISE_90 -> "EDGE_LEFT"
+                                Orientation.BASE -> Pair("EDGE_BOTTOM", "add_tile_bottom_edge")
+                                Orientation.ANTICLOCKWISE_90 -> Pair("EDGE_RIGHT", "add_tile_right_edge")
+                                Orientation.HALF -> Pair("EDGE_TOP", "add_tile_top_edge")
+                                Orientation.CLOCKWISE_90 -> Pair("EDGE_LEFT", "add_tile_left_edge")
                                 else -> throw IllegalArgumentException()
                             }
 
@@ -268,16 +280,18 @@ class RustGen(
                                 val row = cell / 16
                                 val col = cell % 16
                                 when {
-                                    row == 1 && col == 1 -> "MID_TOP_LEFT"
-                                    row == 1 -> "MID_TOP"
-                                    col == 1 -> "MID_LEFT"
-                                    else -> "MID"
+                                    row == 1 && col == 1 -> Pair("MID_TOP_LEFT", "add_tile_0")
+                                    row == 1 -> Pair("MID_TOP", "add_tile_top")
+                                    col == 1 -> Pair("MID_LEFT", "add_tile_left")
+                                    row == (numRows - 2) && col == (numCols - 2) -> Pair("MID", "add_tile_final")
+                                    else -> Pair("MID", "add_tile_mid")
                                 }
                             } else {
-                                "MID"
+                                Pair("MID", "add_tile_mid")
                             }
                         }
                     }
+                    addTileFunctions[idx] = addTileFunction
 
                     val northIdx = if (path.northIndex[idx] == -1) {
                         "INVALID_CELL_IDX"
@@ -295,17 +309,17 @@ class RustGen(
                 out.write("\n];")
                 out.write("\n")
 
-                out.write("\npub const DISPLAY_TO_FILL_ORDER: [i16; NUM_TILES] = [\n    ")
-                for (idx in 0 until numTiles) {
+                out.write("\npub const DISPLAY_TO_FILL_ORDER: [i16; NUM_CELLS] = [\n    ")
+                for (idx in 0 until numCells) {
                     out.write("${path.fillOrder[idx]}, ")
                 }
                 out.write("\n];")
                 out.write("\n")
             } else {
                 val invalidCellIdx = 255
-                out.write("\npub const FILL_ORDER: [Cell; NUM_TILES] = [")
+                out.write("\npub const FILL_ORDER: [Cell; NUM_CELLS] = [")
 
-                for (idx in 0 until numTiles) {
+                for (idx in 0 until numCells) {
                     val row = idx / numCols
                     val col = idx % numCols
                     val cell = when {
@@ -321,6 +335,20 @@ class RustGen(
 
                         else -> Cell(idx - numCols, idx - 1, "MID", "ANY")
                     }
+                    val addTileFunction = when {
+                        row == 0 && col == 0 -> "add_tile_0"
+                        row == 0 && col == (numCols - 1) -> "add_tile_top_right_corner"
+                        row == (numRows - 1) && col == 0 -> "add_tile_bottom_left_corner"
+                        row == (numRows - 1) && col == (numCols - 1) -> "add_tile_final"
+
+                        row == 0 -> "add_tile_top_edge"
+                        row == (numRows - 1) -> "add_tile_bottom_edge"
+                        col == 0 -> "add_tile_left_edge"
+                        col == (numCols - 1) -> "add_tile_right_edge"
+
+                        else -> "add_tile_mid"
+                    }
+                    addTileFunctions[idx] = addTileFunction
                     val northIdx = if (cell.north_idx == invalidCellIdx) { "INVALID_CELL_IDX" } else { cell.north_idx.toString() }
                     val westIdx = if (cell.west_idx == invalidCellIdx) { "INVALID_CELL_IDX" } else { cell.west_idx.toString() }
                     out.write("\n    Cell { north_idx: $northIdx, west_idx: $westIdx, cell_type: ${cell.cell_type}, ori: ${cell.ori} }, // idx $idx")
@@ -329,7 +357,7 @@ class RustGen(
                 out.write("\n")
 
                 out.write("\npub const DISPLAY_TO_FILL_ORDER: [i16; NUM_TILES] = [\n    ")
-                for (idx in 0 until numTiles) {
+                for (idx in 0 until numCells) {
                     out.write("$idx, ")
                 }
                 out.write("\n];")
@@ -338,11 +366,14 @@ class RustGen(
 
             out.write("\npub const TILES: [u8; ${4 * numTiles}] = [")
             fileTiles.forEachIndexed { index, fileTile ->
-                out.write("\n    ${fileTile[0]}, ${fileTile[1]}, ${fileTile[2]}, ${fileTile[3]}, // id: $index, tile_type: ${fileTileTypes[index]}")
+                if (!midsOnly || index >= 60) {
+                    out.write("\n    ${fileTile[0]}, ${fileTile[1]}, ${fileTile[2]}, ${fileTile[3]}, // id: $index, tile_type: ${fileTileTypes[index]}")
+                }
             }
             out.write("\n];")
             out.write("\n")
 
+            out.writeAddTileArray()
             out.writeBiColourMaps()
             out.writeBiColourArray()
         }
@@ -353,9 +384,8 @@ class RustGen(
         // Then 2 bytes for each list of TileOris that match a NW colour (num entries and unused zero).
         // And 2 bytes unused at offset zero, so offset zero can be used to indicate no entry for a specific bicolour.
         // If mids only, an extra 3 instances of each tile in each orientation.
-        val midsCount = if (midsOnly) { numMids * 3 * 4 * 4 } else { 0 }
+        val midsCount = if (midsOnly) { (numMids * 4 * 4) + numMids * 3 * 4 * 4 } else { (numCells * 4 * 4) }
         val numEntries = midsCount +
-            (numTiles * 4 * 4) +
             2 +
             2 * (
                 topLeftCornersWithTwoColours.size +
@@ -426,26 +456,48 @@ class RustGen(
                         if (eastColour == -1) {
                             eastColour = 99
                         }
-                        write(" ${tileori.idx}, ${tileori.ori}, $southColour, $eastColour,")
+                        val tileIdx = if (midsOnly) { tileori.idx - 60 } else { tileori.idx }
+                        write(" $tileIdx, ${tileori.ori}, $southColour, $eastColour,")
                     }
                 }
             }
         }
     }
 
+    private fun BufferedWriter.writeAddTileArray() {
+        write("\nimpl Backtracker<'_> {")
+        write("\n    pub const ADD_TILE_FUNCTIONS: [fn(&mut Self, usize) -> (); $numTiles] = [")
+        if (midsOnly) {
+            for (idx in 0 until numCells) {
+                if (path!!.fillOrder[idx] != -1) {
+                    write("\n        Backtracker::${addTileFunctions[path.fillOrder[idx]]},")
+                }
+            }
+        } else {
+            for (idx in 0 until numCells) {
+                write("\n        Backtracker::${addTileFunctions[idx]},")
+            }
+        }
+        write("\n    ];")
+        write("\n}")
+        write("\n")
+    }
+
     private fun BufferedWriter.writeBiColourMaps() {
-        writeCornersToMap()
-        writeTopEdgesArrayToMap("TOP_EDGES_COLOUR_ARRAY", topEdgesWithTwoColours)
-        writeRightEdgesArrayToMap("RIGHT_EDGES_BICOLOUR_ARRAY", rightEdgesWithTwoColours)
-        writeBottomEdgesArrayToMap("BOTTOM_EDGES_BICOLOUR_ARRAY", bottomEdgesWithTwoColours)
-        writeLeftEdgesArrayToMap("LEFT_EDGES_COLOUR_ARRAY", leftEdgesWithTwoColours)
+        if (!midsOnly) {
+            writeCornersToMap()
+            writeTopEdgesArrayToMap("TOP_EDGES_COLOUR_ARRAY", topEdgesWithTwoColours)
+            writeRightEdgesArrayToMap("RIGHT_EDGES_BICOLOUR_ARRAY", rightEdgesWithTwoColours)
+            writeBottomEdgesArrayToMap("BOTTOM_EDGES_BICOLOUR_ARRAY", bottomEdgesWithTwoColours)
+            writeLeftEdgesArrayToMap("LEFT_EDGES_COLOUR_ARRAY", leftEdgesWithTwoColours)
+        }
         writeMidsArrayToMap("MIDS_BICOLOUR_ARRAY", midsWithTwoColours)
     }
 
     private fun BufferedWriter.writeCornersToMap() {
         val topLeftBicolour = toBicolour(0, 0)
         val topLeftTileoris = topLeftCornersWithTwoColours[topLeftBicolour]!!
-        write("\npub static TOP_LEFT_CORNER_OFFSET: u16 = $runningCount;")
+        write("\npub static TOP_LEFT_CORNER_OFFSET: usize = $runningCount;")
         incrementRunningCount(topLeftTileoris.size)
         write("\n")
 
