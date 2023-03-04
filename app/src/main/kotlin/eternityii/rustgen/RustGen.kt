@@ -213,7 +213,7 @@ class RustGen(
             out.write("\n// pub const NUM_MID_COLOURS: u32 = ${numMidColours.size};")
             out.write("\n")
             out.write("\n#[cfg(feature = \"backtracker-mids\")]")
-            out.write("\npub const ANY_COLOUR: u8 = $anyColour;")
+            out.write("\npub const ANY_COLOUR: usize = $anyColour;")
             out.write("\n")
             out.write("\nconst INVALID_CELL_IDX: u8 = 255;")
             out.write("\n")
