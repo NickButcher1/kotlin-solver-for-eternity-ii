@@ -416,12 +416,15 @@ class RustGen(
         // And 2 bytes unused at offset zero, so offset zero can be used to indicate no entry for a specific bicolour.
         val prefillCount = 4 * prefillTileOris.size
         val midsCount = if (midsOnly) {
-            // mids only, so add an extra 3 instances of each tile in each orientation...
-            if (prefillTileOris.size >= 1) {
+            if (prefillTileOris.size == 0) {
+                // mids only, so add an extra 3 instances of each tile in each orientation...
+                (numMids * 4 * 4) + numMids * 3 * 4 * 4
+            } else if (prefillTileOris.size < 14) {
                 // ...except when prefilling, where the ANY/ANY isn't needed.
                 (numMids * 4 * 4) + numMids * 2 * 4 * 4
             } else {
-                (numMids * 4 * 4) + numMids * 3 * 4 * 4
+                // ...and if the entire top row is prefilled, no need for ANY/X.
+                (numMids * 4 * 4) + numMids * 1 * 4 * 4
             }
         } else {
             (numCells * 4 * 4)
@@ -825,12 +828,15 @@ class RustGen(
                         TileOri(idx, Orientation.BASE.toInt(), toBicolour(fileTile[0], anyColour + 1)),
                         TileOri(idx, Orientation.CLOCKWISE_90.toInt(), toBicolour(fileTile[3], anyColour + 1)),
                         TileOri(idx, Orientation.HALF.toInt(), toBicolour(fileTile[2], anyColour + 1)),
-                        TileOri(idx, Orientation.ANTICLOCKWISE_90.toInt(), toBicolour(fileTile[1], anyColour + 1)),
-                        TileOri(idx, Orientation.BASE.toInt(), toBicolour(anyColour + 1, fileTile[3])),
-                        TileOri(idx, Orientation.CLOCKWISE_90.toInt(), toBicolour(anyColour + 1, fileTile[2])),
-                        TileOri(idx, Orientation.HALF.toInt(), toBicolour(anyColour + 1, fileTile[1])),
-                        TileOri(idx, Orientation.ANTICLOCKWISE_90.toInt(), toBicolour(anyColour + 1, fileTile[0]))
+                        TileOri(idx, Orientation.ANTICLOCKWISE_90.toInt(), toBicolour(fileTile[1], anyColour + 1))
                     )
+
+                    if (prefillTileOris.size < 14) {
+                        tileList.add(TileOri(idx, Orientation.BASE.toInt(), toBicolour(anyColour + 1, fileTile[3])))
+                        tileList.add(TileOri(idx, Orientation.CLOCKWISE_90.toInt(), toBicolour(anyColour + 1, fileTile[2])))
+                        tileList.add(TileOri(idx, Orientation.HALF.toInt(), toBicolour(anyColour + 1, fileTile[1])))
+                        tileList.add(TileOri(idx, Orientation.ANTICLOCKWISE_90.toInt(), toBicolour(anyColour + 1, fileTile[0])))
+                    }
 
                     if (prefillTileOris.size == 0) {
                         tileList.add(TileOri(idx, Orientation.BASE.toInt(), toBicolour(anyColour + 1, anyColour + 1)))
