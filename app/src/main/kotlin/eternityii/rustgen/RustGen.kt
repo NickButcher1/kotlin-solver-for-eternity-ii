@@ -194,6 +194,8 @@ class RustGen(
             }
         }
 
+        println("NDBFIX: prefillTileOris: $prefillTileOris")
+
         if (!midsOnly) {
             cornersWithClockwiseColour = buildCornersWithColour(Compass.NORTH.toInt())
             cornersWithAnticlockwiseColour = buildCornersWithColour(Compass.EAST.toInt())
@@ -800,57 +802,47 @@ class RustGen(
         val tempWithColour: MutableMap<Int, MutableList<TileOri>> = mutableMapOf()
 
         (fromIdx until toIdx).forEach { idx ->
-            var skipTile = false
             val fileTile = fileTiles[idx]
-            if (prefillData != null) {
-                // TODO poss don't sub 60 for full?
-                val prefillIndex = prefillData.placedTiles.indexOf((idx - 60).toUByte())
-                if (prefillIndex != -1) {
-                    println("NDBFIX Remove $idx, $prefillIndex")
-                    // skipTile = true
+
+            listOf(
+                TileOri(idx, Orientation.BASE.toInt(), toBicolour(fileTile[0], fileTile[3])),
+                TileOri(idx, Orientation.CLOCKWISE_90.toInt(), toBicolour(fileTile[3], fileTile[2])),
+                TileOri(idx, Orientation.HALF.toInt(), toBicolour(fileTile[2], fileTile[1])),
+                TileOri(idx, Orientation.ANTICLOCKWISE_90.toInt(), toBicolour(fileTile[1], fileTile[0]))
+            ).forEach { tileOri ->
+                if (tempWithColour[tileOri.biColour] == null) {
+                    tempWithColour[tileOri.biColour] = mutableListOf()
                 }
+                tempWithColour[tileOri.biColour]!!.add(tileOri)
             }
-            if (!skipTile) {
-                listOf(
-                    TileOri(idx, Orientation.BASE.toInt(), toBicolour(fileTile[0], fileTile[3])),
-                    TileOri(idx, Orientation.CLOCKWISE_90.toInt(), toBicolour(fileTile[3], fileTile[2])),
-                    TileOri(idx, Orientation.HALF.toInt(), toBicolour(fileTile[2], fileTile[1])),
-                    TileOri(idx, Orientation.ANTICLOCKWISE_90.toInt(), toBicolour(fileTile[1], fileTile[0]))
-                ).forEach { tileOri ->
+
+            if (midsOnly) {
+                val tileList = mutableListOf(
+                    TileOri(idx, Orientation.BASE.toInt(), toBicolour(fileTile[0], anyColour + 1)),
+                    TileOri(idx, Orientation.CLOCKWISE_90.toInt(), toBicolour(fileTile[3], anyColour + 1)),
+                    TileOri(idx, Orientation.HALF.toInt(), toBicolour(fileTile[2], anyColour + 1)),
+                    TileOri(idx, Orientation.ANTICLOCKWISE_90.toInt(), toBicolour(fileTile[1], anyColour + 1))
+                )
+
+                if (prefillTileOris.size < 14) {
+                    tileList.add(TileOri(idx, Orientation.BASE.toInt(), toBicolour(anyColour + 1, fileTile[3])))
+                    tileList.add(TileOri(idx, Orientation.CLOCKWISE_90.toInt(), toBicolour(anyColour + 1, fileTile[2])))
+                    tileList.add(TileOri(idx, Orientation.HALF.toInt(), toBicolour(anyColour + 1, fileTile[1])))
+                    tileList.add(TileOri(idx, Orientation.ANTICLOCKWISE_90.toInt(), toBicolour(anyColour + 1, fileTile[0])))
+                }
+
+                if (prefillTileOris.size == 0) {
+                    tileList.add(TileOri(idx, Orientation.BASE.toInt(), toBicolour(anyColour + 1, anyColour + 1)))
+                    tileList.add(TileOri(idx, Orientation.CLOCKWISE_90.toInt(), toBicolour(anyColour + 1, anyColour + 1)))
+                    tileList.add(TileOri(idx, Orientation.HALF.toInt(), toBicolour(anyColour + 1, anyColour + 1)))
+                    tileList.add(TileOri(idx, Orientation.ANTICLOCKWISE_90.toInt(), toBicolour(anyColour + 1, anyColour + 1)))
+                }
+
+                tileList.forEach { tileOri ->
                     if (tempWithColour[tileOri.biColour] == null) {
                         tempWithColour[tileOri.biColour] = mutableListOf()
                     }
                     tempWithColour[tileOri.biColour]!!.add(tileOri)
-                }
-
-                if (midsOnly) {
-                    val tileList = mutableListOf(
-                        TileOri(idx, Orientation.BASE.toInt(), toBicolour(fileTile[0], anyColour + 1)),
-                        TileOri(idx, Orientation.CLOCKWISE_90.toInt(), toBicolour(fileTile[3], anyColour + 1)),
-                        TileOri(idx, Orientation.HALF.toInt(), toBicolour(fileTile[2], anyColour + 1)),
-                        TileOri(idx, Orientation.ANTICLOCKWISE_90.toInt(), toBicolour(fileTile[1], anyColour + 1))
-                    )
-
-                    if (prefillTileOris.size < 14) {
-                        tileList.add(TileOri(idx, Orientation.BASE.toInt(), toBicolour(anyColour + 1, fileTile[3])))
-                        tileList.add(TileOri(idx, Orientation.CLOCKWISE_90.toInt(), toBicolour(anyColour + 1, fileTile[2])))
-                        tileList.add(TileOri(idx, Orientation.HALF.toInt(), toBicolour(anyColour + 1, fileTile[1])))
-                        tileList.add(TileOri(idx, Orientation.ANTICLOCKWISE_90.toInt(), toBicolour(anyColour + 1, fileTile[0])))
-                    }
-
-                    if (prefillTileOris.size == 0) {
-                        tileList.add(TileOri(idx, Orientation.BASE.toInt(), toBicolour(anyColour + 1, anyColour + 1)))
-                        tileList.add(TileOri(idx, Orientation.CLOCKWISE_90.toInt(), toBicolour(anyColour + 1, anyColour + 1)))
-                        tileList.add(TileOri(idx, Orientation.HALF.toInt(), toBicolour(anyColour + 1, anyColour + 1)))
-                        tileList.add(TileOri(idx, Orientation.ANTICLOCKWISE_90.toInt(), toBicolour(anyColour + 1, anyColour + 1)))
-                    }
-
-                    tileList.forEach { tileOri ->
-                        if (tempWithColour[tileOri.biColour] == null) {
-                            tempWithColour[tileOri.biColour] = mutableListOf()
-                        }
-                        tempWithColour[tileOri.biColour]!!.add(tileOri)
-                    }
                 }
             }
         }
