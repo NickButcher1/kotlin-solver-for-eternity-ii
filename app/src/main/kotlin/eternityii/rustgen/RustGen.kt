@@ -172,10 +172,6 @@ class RustGen(
         }
 
         if (prefillData != null) {
-            println("TODO: ${prefillData.placedTiles}")
-            println("TODO: ${prefillData.placedOris}")
-            println("TODO: ${prefillData.tileTypes}")
-
             (0 until prefillData.placedTiles.size).map { depth ->
                 val tileId = when (prefillData.tileTypes[depth]) {
                     TileType.CORNER -> prefillData.placedTiles[depth].toInt()
@@ -759,11 +755,14 @@ class RustGen(
      */
     private fun toSide(orientation: Int, compass: Int): Int = (orientation + compass) % 4
 
-    // TODO Remove prefilled tiles.
     private fun buildCornersWithColour(compass: Int): MutableMap<Int, MutableList<Int>> {
         val tempWithColour: MutableMap<Int, MutableList<Int>> = mutableMapOf()
 
-        (0..3).map { tileId ->
+        for (tileId in 0..3) {
+            if (isTilePrefilled(tileId)) {
+                continue
+            }
+
             val colour = fileTiles[tileId][toSide(Orientation.BASE.toInt(), compass)]
             if (tempWithColour[colour] == null) {
                 tempWithColour[colour] = mutableListOf()
@@ -775,11 +774,14 @@ class RustGen(
         return tempWithColour
     }
 
-    // TODO Remove prefilled tiles.
     private fun buildEdgesWithColour(compass: Int): MutableMap<Int, MutableList<Int>> {
         val tempWithColour: MutableMap<Int, MutableList<Int>> = mutableMapOf()
 
-        (4 until (numEdges + 4)).map { tileId ->
+        for (tileId in 4 until (numEdges + 4)) {
+            if (isTilePrefilled(tileId)) {
+                continue
+            }
+
             val colour = fileTiles[tileId][toSide(Orientation.BASE.toInt(), compass)]
             if (tempWithColour[colour] == null) {
                 tempWithColour[colour] = mutableListOf()
@@ -859,9 +861,12 @@ class RustGen(
         return false
     }
 
-    // TODO Remove prefilled tiles.
     private fun buildCornersWithTwoColours() {
-        (0..3).map { idx ->
+        for (idx in 0..3) {
+            if (isTilePrefilled(idx)) {
+                continue
+            }
+
             val fileTile = fileTiles[idx]
 
             topRightCornersWithTwoColours.addTileOri(
@@ -882,9 +887,12 @@ class RustGen(
         }
     }
 
-    // TODO Remove prefilled tiles.
     private fun buildEdgesWithTwoColours() {
-        (4 until (numEdges + 4)).map { idx ->
+        for (idx in 4 until (numEdges + 4)) {
+            if (isTilePrefilled(idx)) {
+                continue
+            }
+
             val fileTile = fileTiles[idx]
 
             topEdgesWithTwoColours.addTileOri(
