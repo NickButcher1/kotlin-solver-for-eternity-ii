@@ -194,8 +194,6 @@ class RustGen(
             }
         }
 
-        println("NDBFIX: prefillTileOris: $prefillTileOris")
-
         if (!midsOnly) {
             cornersWithClockwiseColour = buildCornersWithColour(Compass.NORTH.toInt())
             cornersWithAnticlockwiseColour = buildCornersWithColour(Compass.EAST.toInt())
@@ -800,7 +798,6 @@ class RustGen(
 
         for (idx in fromIdx until toIdx) {
             if (isTilePrefilled(idx)) {
-                println("NDBFIX SKIP PREFILLED $idx")
                 continue
             }
 
