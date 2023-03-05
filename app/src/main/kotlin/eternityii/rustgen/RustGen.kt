@@ -209,7 +209,7 @@ class RustGen(
             edgesWithClockwiseColour = mutableMapOf()
             edgesWithAnticlockwiseColour = mutableMapOf()
         }
-        midsWithTwoColours = buildWithTwoColours(4 + numEdges, numCells)
+        midsWithTwoColours = buildMidsWithTwoColours()
     }
 
     fun generate() {
@@ -418,18 +418,20 @@ class RustGen(
         // And 2 bytes unused at offset zero, so offset zero can be used to indicate no entry for a specific bicolour.
         val prefillCount = 4 * prefillTileOris.size
         val midsCount = if (midsOnly) {
+            val actualNum = numMids - prefillTileOris.size
             if (prefillTileOris.size == 0) {
                 // mids only, so add an extra 3 instances of each tile in each orientation...
-                (numMids * 4 * 4) + numMids * 3 * 4 * 4
+                (actualNum * 4 * 4) + actualNum * 3 * 4 * 4
             } else if (prefillTileOris.size < 14) {
                 // ...except when prefilling, where the ANY/ANY isn't needed.
-                (numMids * 4 * 4) + numMids * 2 * 4 * 4
+                (actualNum * 4 * 4) + actualNum * 2 * 4 * 4
             } else {
                 // ...and if the entire top row is prefilled, no need for ANY/X.
-                (numMids * 4 * 4) + numMids * 1 * 4 * 4
+                (actualNum * 4 * 4) + actualNum * 1 * 4 * 4
             }
         } else {
-            (numCells * 4 * 4)
+            val actualNum = numCells - prefillTileOris.size
+            (actualNum * 4 * 4)
         }
 
         val numEntries = prefillCount + midsCount +
@@ -508,12 +510,6 @@ class RustGen(
                     } else {
                         originalTileoris
                     }
-
-                    // Omit ANY/ANY when prefilling because we don't need it.
-//                    if (prefillTileOris.size >= 1 && mainColour == (anyColour + 1) && acColour == (anyColour + 1)) {
-//                        println("NDBFIX SKIP ${prefillTileOris.size}")
-//                        continue
-//                    }
 
                     if (midsOnly && mainColour == (anyColour + 1) && acColour == (anyColour + 1)) {
                         // There are more than 255 entries, so we can't use a u8 - set to zero and handle in the Rust code.
@@ -797,11 +793,17 @@ class RustGen(
         return tempWithColour
     }
 
-    // TODO Remove prefilled tiles.
-    private fun buildWithTwoColours(fromIdx: Int, toIdx: Int): MutableMap<Int, MutableList<TileOri>> {
+    private fun buildMidsWithTwoColours(): MutableMap<Int, MutableList<TileOri>> {
+        val fromIdx = 4 + numEdges
+        val toIdx = numCells
         val tempWithColour: MutableMap<Int, MutableList<TileOri>> = mutableMapOf()
 
-        (fromIdx until toIdx).forEach { idx ->
+        for (idx in fromIdx until toIdx) {
+            if (isTilePrefilled(idx)) {
+                println("NDBFIX SKIP PREFILLED $idx")
+                continue
+            }
+
             val fileTile = fileTiles[idx]
 
             listOf(
@@ -848,6 +850,16 @@ class RustGen(
         }
 
         return tempWithColour
+    }
+
+    // tilId is in range 0-255.
+    private fun isTilePrefilled(tileId: Int): Boolean {
+        prefillTileOris.forEach { tileori ->
+            if (tileori.idx == tileId) {
+                return true
+            }
+        }
+        return false
     }
 
     // TODO Remove prefilled tiles.
