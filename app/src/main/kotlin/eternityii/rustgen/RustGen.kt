@@ -417,7 +417,7 @@ class RustGen(
         // If mids only, an extra 3 instances of each tile in each orientation.
         val prefillCount = 4 * prefillTileOris.size
         val midsCount = if (midsOnly) { (numMids * 4 * 4) + numMids * 3 * 4 * 4 } else { (numCells * 4 * 4) }
-        val numEntries = prefillCount + midsCount +
+        var numEntries = prefillCount + midsCount +
             2 +
             2 * (
                 topLeftCornersWithTwoColours.size +
@@ -430,6 +430,11 @@ class RustGen(
                 leftEdgesWithTwoColours.size +
                 midsWithTwoColours.size
             )
+
+//        if (prefillTileOris.size >= 1) {
+//            numEntries -= midsWithTwoColours[toBicolour(anyColour, anyColour)]!!.size
+//        }
+
         write("\npub static BICOLOUR_TILES: [u8; $numEntries] = [")
         write("\n    // unused")
         write("\n    0, 0,")
@@ -463,7 +468,6 @@ class RustGen(
         write("\n   ")
 
         prefillTileOris.forEach { tileori ->
-            println("NDBFIX DEBUG: ${tileori.idx}/${tileori.ori}")
             // Reduce colours by one so they are zero-based, not one-based. 99 indicates grey border  which
             // will never be used.
             var southColour = fileTiles[tileori.idx][(tileori.ori + 2) % 4] - 1
@@ -493,6 +497,12 @@ class RustGen(
                     } else {
                         originalTileoris
                     }
+
+                    // Omit ANY/ANY when prefilling because we don't need it.
+//                    if (prefillTileOris.size >= 1 && mainColour == (anyColour + 1) && acColour == (anyColour + 1)) {
+//                        println("NDBFIX SKIP ${prefillTileOris.size}")
+//                        continue
+//                    }
 
                     if (midsOnly && mainColour == (anyColour + 1) && acColour == (anyColour + 1)) {
                         // There are more than 255 entries, so we can't use a u8 - set to zero and handle in the Rust code.
@@ -784,9 +794,10 @@ class RustGen(
             var skipTile = false
             val fileTile = fileTiles[idx]
             if (prefillData != null) {
+                // TODO poss don't sub 60 for full?
                 val prefillIndex = prefillData.placedTiles.indexOf((idx - 60).toUByte())
                 if (prefillIndex != -1) {
-                    println("Remove $idx, $prefillIndex")
+                    println("NDBFIX Remove $idx, $prefillIndex")
                     // skipTile = true
                 }
             }
