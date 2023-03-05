@@ -57,12 +57,10 @@ class RustGen(
     private val midsWithTwoColours: MutableMap<Int, MutableList<TileOri>>
     private var runningCount = 2
     private val addTileFunctions: MutableMap<Int, String> = mutableMapOf()
-    private var prefillOffsets: MutableMap<Int, Int> = mutableMapOf()
-    private var prefillRunningCount = 2
+    private var prefillTileOris: MutableList<TileOri> = mutableListOf()
 
     init {
         println("RustGen: $inputFilename")
-        println("TODO: ${prefillData?.placedTiles}")
 
         val inputList = File("../input/$inputFilename").useLines { it.toList() }
         val firstLine = inputList[0].split(" ")
@@ -170,6 +168,29 @@ class RustGen(
                             newMidColourMap[entry[3]]!!
                         )
                     )
+            }
+        }
+
+        if (prefillData != null) {
+            println("TODO: ${prefillData.placedTiles}")
+            println("TODO: ${prefillData.placedOris}")
+            println("TODO: ${prefillData.tileTypes}")
+
+            (0 until prefillData.placedTiles.size).map { depth ->
+                val tileId = when (prefillData.tileTypes[depth]) {
+                    TileType.CORNER -> prefillData.placedTiles[depth].toInt()
+                    TileType.EDGE -> prefillData.placedTiles[depth].toInt() + 4
+                    TileType.MID -> prefillData.placedTiles[depth].toInt() + 4 + numEdges
+                }
+                val fileTile = fileTiles[tileId]
+
+                prefillTileOris.add(
+                    TileOri(
+                        tileId,
+                        prefillData.placedOris[depth].toInt(),
+                        toBicolour(fileTile[3], fileTile[2])
+                    )
+                )
             }
         }
 
@@ -394,8 +415,9 @@ class RustGen(
         // Then 2 bytes for each list of TileOris that match a NW colour (num entries and unused zero).
         // And 2 bytes unused at offset zero, so offset zero can be used to indicate no entry for a specific bicolour.
         // If mids only, an extra 3 instances of each tile in each orientation.
+        val prefillCount = 4 * prefillTileOris.size
         val midsCount = if (midsOnly) { (numMids * 4 * 4) + numMids * 3 * 4 * 4 } else { (numCells * 4 * 4) }
-        val numEntries = midsCount +
+        val numEntries = prefillCount + midsCount +
             2 +
             2 * (
                 topLeftCornersWithTwoColours.size +
@@ -429,8 +451,32 @@ class RustGen(
         writeOneMapToArray(leftEdgesWithTwoColours)
         write("\n    // midsWithTwoColours")
         writeOneMapToArray(midsWithTwoColours)
+        if (prefillCount != 0) {
+            write("\n    // prefillTiles")
+            writePrefillListToArray()
+        }
         write("\n];")
         write("\n")
+    }
+
+    private fun BufferedWriter.writePrefillListToArray() {
+        write("\n   ")
+
+        prefillTileOris.forEach { tileori ->
+            println("NDBFIX DEBUG: ${tileori.idx}/${tileori.ori}")
+            // Reduce colours by one so they are zero-based, not one-based. 99 indicates grey border  which
+            // will never be used.
+            var southColour = fileTiles[tileori.idx][(tileori.ori + 2) % 4] - 1
+            if (southColour == -1) {
+                southColour = 99
+            }
+            var eastColour = fileTiles[tileori.idx][(tileori.ori + 1) % 4] - 1
+            if (eastColour == -1) {
+                eastColour = 99
+            }
+            val tileIdx = if (midsOnly) { tileori.idx - 60 } else { tileori.idx }
+            write(" $tileIdx, ${tileori.ori}, $southColour, $eastColour,")
+        }
     }
 
     private fun BufferedWriter.writeOneMapToArray(
@@ -454,7 +500,6 @@ class RustGen(
                     } else {
                         write("\n    ${tileoris.size}, 0, // $bicolour\n   ")
                     }
-                    prefillRunningCount += 2
 
                     tileoris.forEach { tileori ->
                         // Reduce colours by one so they are zero-based, not one-based. 99 indicates grey border  which
@@ -469,18 +514,6 @@ class RustGen(
                         }
                         val tileIdx = if (midsOnly) { tileori.idx - 60 } else { tileori.idx }
                         write(" $tileIdx, ${tileori.ori}, $southColour, $eastColour,")
-
-                        if (prefillData != null) {
-                            // TODO
-                            val placedIndex = prefillData.placedTiles.indexOf(tileIdx.toUByte())
-                            if (placedIndex != -1) {
-                                if (prefillData.placedOris[placedIndex] == tileori.ori.toUByte()) {
-                                    println("NDBFIX: $tileIdx/${tileori.ori}, $placedIndex")
-                                    prefillOffsets[tileori.idx] = prefillRunningCount
-                                }
-                            }
-                        }
-                        prefillRunningCount += 4
                     }
                 }
             }
@@ -512,13 +545,9 @@ class RustGen(
             write("\n")
             write("\npub const PREFILL_TILES_OFFSET: [u16; ${prefillData.placedTiles.size}] = [")
             write("\n    ")
-            (0 until prefillData.placedTiles.size).map { id ->
-                val tileId = tileData.idToRealTileId(
-                    prefillData.tileTypes[id],
-                    prefillData.placedTiles[id]
-                )
-
-                write("${prefillOffsets[tileId.toInt()]}, ")
+            repeat(prefillData.placedTiles.size) {
+                write("$runningCount, ")
+                runningCount += 4
             }
             write("\n];")
             write("\n")
@@ -752,39 +781,48 @@ class RustGen(
         val tempWithColour: MutableMap<Int, MutableList<TileOri>> = mutableMapOf()
 
         (fromIdx until toIdx).forEach { idx ->
+            var skipTile = false
             val fileTile = fileTiles[idx]
-
-            listOf(
-                TileOri(idx, Orientation.BASE.toInt(), toBicolour(fileTile[0], fileTile[3])),
-                TileOri(idx, Orientation.CLOCKWISE_90.toInt(), toBicolour(fileTile[3], fileTile[2])),
-                TileOri(idx, Orientation.HALF.toInt(), toBicolour(fileTile[2], fileTile[1])),
-                TileOri(idx, Orientation.ANTICLOCKWISE_90.toInt(), toBicolour(fileTile[1], fileTile[0]))
-            ).forEach { tileOri ->
-                if (tempWithColour[tileOri.biColour] == null) {
-                    tempWithColour[tileOri.biColour] = mutableListOf()
+            if (prefillData != null) {
+                val prefillIndex = prefillData.placedTiles.indexOf((idx - 60).toUByte())
+                if (prefillIndex != -1) {
+                    println("Remove $idx, $prefillIndex")
+                    // skipTile = true
                 }
-                tempWithColour[tileOri.biColour]!!.add(tileOri)
             }
-
-            if (midsOnly) {
+            if (!skipTile) {
                 listOf(
-                    TileOri(idx, Orientation.BASE.toInt(), toBicolour(fileTile[0], anyColour + 1)),
-                    TileOri(idx, Orientation.CLOCKWISE_90.toInt(), toBicolour(fileTile[3], anyColour + 1)),
-                    TileOri(idx, Orientation.HALF.toInt(), toBicolour(fileTile[2], anyColour + 1)),
-                    TileOri(idx, Orientation.ANTICLOCKWISE_90.toInt(), toBicolour(fileTile[1], anyColour + 1)),
-                    TileOri(idx, Orientation.BASE.toInt(), toBicolour(anyColour + 1, fileTile[3])),
-                    TileOri(idx, Orientation.CLOCKWISE_90.toInt(), toBicolour(anyColour + 1, fileTile[2])),
-                    TileOri(idx, Orientation.HALF.toInt(), toBicolour(anyColour + 1, fileTile[1])),
-                    TileOri(idx, Orientation.ANTICLOCKWISE_90.toInt(), toBicolour(anyColour + 1, fileTile[0])),
-                    TileOri(idx, Orientation.BASE.toInt(), toBicolour(anyColour + 1, anyColour + 1)),
-                    TileOri(idx, Orientation.CLOCKWISE_90.toInt(), toBicolour(anyColour + 1, anyColour + 1)),
-                    TileOri(idx, Orientation.HALF.toInt(), toBicolour(anyColour + 1, anyColour + 1)),
-                    TileOri(idx, Orientation.ANTICLOCKWISE_90.toInt(), toBicolour(anyColour + 1, anyColour + 1)),
+                    TileOri(idx, Orientation.BASE.toInt(), toBicolour(fileTile[0], fileTile[3])),
+                    TileOri(idx, Orientation.CLOCKWISE_90.toInt(), toBicolour(fileTile[3], fileTile[2])),
+                    TileOri(idx, Orientation.HALF.toInt(), toBicolour(fileTile[2], fileTile[1])),
+                    TileOri(idx, Orientation.ANTICLOCKWISE_90.toInt(), toBicolour(fileTile[1], fileTile[0]))
                 ).forEach { tileOri ->
                     if (tempWithColour[tileOri.biColour] == null) {
                         tempWithColour[tileOri.biColour] = mutableListOf()
                     }
                     tempWithColour[tileOri.biColour]!!.add(tileOri)
+                }
+
+                if (midsOnly) {
+                    listOf(
+                        TileOri(idx, Orientation.BASE.toInt(), toBicolour(fileTile[0], anyColour + 1)),
+                        TileOri(idx, Orientation.CLOCKWISE_90.toInt(), toBicolour(fileTile[3], anyColour + 1)),
+                        TileOri(idx, Orientation.HALF.toInt(), toBicolour(fileTile[2], anyColour + 1)),
+                        TileOri(idx, Orientation.ANTICLOCKWISE_90.toInt(), toBicolour(fileTile[1], anyColour + 1)),
+                        TileOri(idx, Orientation.BASE.toInt(), toBicolour(anyColour + 1, fileTile[3])),
+                        TileOri(idx, Orientation.CLOCKWISE_90.toInt(), toBicolour(anyColour + 1, fileTile[2])),
+                        TileOri(idx, Orientation.HALF.toInt(), toBicolour(anyColour + 1, fileTile[1])),
+                        TileOri(idx, Orientation.ANTICLOCKWISE_90.toInt(), toBicolour(anyColour + 1, fileTile[0])),
+                        TileOri(idx, Orientation.BASE.toInt(), toBicolour(anyColour + 1, anyColour + 1)),
+                        TileOri(idx, Orientation.CLOCKWISE_90.toInt(), toBicolour(anyColour + 1, anyColour + 1)),
+                        TileOri(idx, Orientation.HALF.toInt(), toBicolour(anyColour + 1, anyColour + 1)),
+                        TileOri(idx, Orientation.ANTICLOCKWISE_90.toInt(), toBicolour(anyColour + 1, anyColour + 1)),
+                    ).forEach { tileOri ->
+                        if (tempWithColour[tileOri.biColour] == null) {
+                            tempWithColour[tileOri.biColour] = mutableListOf()
+                        }
+                        tempWithColour[tileOri.biColour]!!.add(tileOri)
+                    }
                 }
             }
         }
