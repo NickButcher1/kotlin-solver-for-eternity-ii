@@ -79,7 +79,7 @@
 These are the best results obtained with the Rust backtracker.
 
 - 16x16 all tiles, scanrow, default order:
-  - 215 tiles (13x16+7) in 9 minutes (40B placed).
+  - 215 tiles (13x16+7) in 8 minutes (40.5B placed).
   - Longest run: 150B placed in 2,205s, found 210x256, 211x70, 212x25, 213x5, 214x2, 215x1.
   - Longest run: 261B placed in 5,166s, found 210x521, 211x188, 212x87, 213x53, 214x13, 215x3.
 
