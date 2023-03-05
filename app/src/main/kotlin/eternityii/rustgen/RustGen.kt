@@ -1,9 +1,11 @@
 package eternityii.rustgen
 
 import eternityii.CellIterator
+import eternityii.SolutionFoundException
 import eternityii.backtracker.BacktrackerPath
 import eternityii.data.Compass
 import eternityii.data.Orientation
+import eternityii.data.TileData
 import eternityii.data.TileType
 import java.io.BufferedWriter
 import java.io.File
@@ -20,10 +22,12 @@ private data class TileOri(
     val biColour: Int
 )
 class RustGen(
+    private val tileData: TileData,
     inputFilename: String,
     private val path: BacktrackerPath?,
     private val randomOrder: Boolean,
-    private val midsOnly: Boolean
+    private val midsOnly: Boolean,
+    private val prefillData: SolutionFoundException? = null
 ) {
     private val numRows: Int
     private val numCols: Int
@@ -53,9 +57,13 @@ class RustGen(
     private val midsWithTwoColours: MutableMap<Int, MutableList<TileOri>>
     private var runningCount = 2
     private val addTileFunctions: MutableMap<Int, String> = mutableMapOf()
+    private var prefillOffsets: MutableMap<Int, Int> = mutableMapOf()
+    private var prefillRunningCount = 2
 
     init {
         println("RustGen: $inputFilename")
+        println("TODO: ${prefillData?.placedTiles}")
+
         val inputList = File("../input/$inputFilename").useLines { it.toList() }
         val firstLine = inputList[0].split(" ")
         numRows = firstLine[1].toInt()
@@ -212,9 +220,10 @@ class RustGen(
             out.write("\n// pub const NUM_EDGE_COLOURS: u32 = ${numEdgeColours.size};")
             out.write("\n// pub const NUM_MID_COLOURS: u32 = ${numMidColours.size};")
             out.write("\n")
-            out.write("\n#[cfg(feature = \"backtracker-mids\")]")
-            out.write("\npub const ANY_COLOUR: usize = $anyColour;")
-            out.write("\n")
+            if (midsOnly) {
+                out.write("\npub const ANY_COLOUR: usize = $anyColour;")
+                out.write("\n")
+            }
             out.write("\nconst INVALID_CELL_IDX: u8 = 255;")
             out.write("\n")
             out.write("\n#[derive(Debug)]")
@@ -376,6 +385,7 @@ class RustGen(
             out.writeAddTileArray()
             out.writeBiColourMaps()
             out.writeBiColourArray()
+            out.writePrefillArray()
         }
     }
 
@@ -444,6 +454,7 @@ class RustGen(
                     } else {
                         write("\n    ${tileoris.size}, 0, // $bicolour\n   ")
                     }
+                    prefillRunningCount += 2
 
                     tileoris.forEach { tileori ->
                         // Reduce colours by one so they are zero-based, not one-based. 99 indicates grey border  which
@@ -458,6 +469,18 @@ class RustGen(
                         }
                         val tileIdx = if (midsOnly) { tileori.idx - 60 } else { tileori.idx }
                         write(" $tileIdx, ${tileori.ori}, $southColour, $eastColour,")
+
+                        if (prefillData != null) {
+                            // TODO
+                            val placedIndex = prefillData.placedTiles.indexOf(tileIdx.toUByte())
+                            if (placedIndex != -1) {
+                                if (prefillData.placedOris[placedIndex] == tileori.ori.toUByte()) {
+                                    println("NDBFIX: $tileIdx/${tileori.ori}, $placedIndex")
+                                    prefillOffsets[tileori.idx] = prefillRunningCount
+                                }
+                            }
+                        }
+                        prefillRunningCount += 4
                     }
                 }
             }
@@ -481,6 +504,30 @@ class RustGen(
         write("\n    ];")
         write("\n}")
         write("\n")
+    }
+
+    private fun BufferedWriter.writePrefillArray() {
+        if (prefillData != null) {
+            write("\npub const PREFILL_DEPTH: usize = ${prefillData.placedTiles.size};")
+            write("\n")
+            write("\npub const PREFILL_TILES_OFFSET: [u16; ${prefillData.placedTiles.size}] = [")
+            write("\n    ")
+            (0 until prefillData.placedTiles.size).map { id ->
+                val tileId = tileData.idToRealTileId(
+                    prefillData.tileTypes[id],
+                    prefillData.placedTiles[id]
+                )
+
+                write("${prefillOffsets[tileId.toInt()]}, ")
+            }
+            write("\n];")
+            write("\n")
+        } else {
+            write("\npub const PREFILL_DEPTH: usize = 0;")
+            write("\n")
+            write("\npub const PREFILL_TILES_OFFSET: [u8; 0] = [];")
+            write("\n")
+        }
     }
 
     private fun BufferedWriter.writeBiColourMaps() {
@@ -668,6 +715,7 @@ class RustGen(
      */
     private fun toSide(orientation: Int, compass: Int): Int = (orientation + compass) % 4
 
+    // TODO Remove prefilled tiles.
     private fun buildCornersWithColour(compass: Int): MutableMap<Int, MutableList<Int>> {
         val tempWithColour: MutableMap<Int, MutableList<Int>> = mutableMapOf()
 
@@ -683,6 +731,7 @@ class RustGen(
         return tempWithColour
     }
 
+    // TODO Remove prefilled tiles.
     private fun buildEdgesWithColour(compass: Int): MutableMap<Int, MutableList<Int>> {
         val tempWithColour: MutableMap<Int, MutableList<Int>> = mutableMapOf()
 
@@ -698,6 +747,7 @@ class RustGen(
         return tempWithColour
     }
 
+    // TODO Remove prefilled tiles.
     private fun buildWithTwoColours(fromIdx: Int, toIdx: Int): MutableMap<Int, MutableList<TileOri>> {
         val tempWithColour: MutableMap<Int, MutableList<TileOri>> = mutableMapOf()
 
@@ -742,6 +792,7 @@ class RustGen(
         return tempWithColour
     }
 
+    // TODO Remove prefilled tiles.
     private fun buildCornersWithTwoColours() {
         (0..3).map { idx ->
             val fileTile = fileTiles[idx]
@@ -764,6 +815,7 @@ class RustGen(
         }
     }
 
+    // TODO Remove prefilled tiles.
     private fun buildEdgesWithTwoColours() {
         (4 until (numEdges + 4)).map { idx ->
             val fileTile = fileTiles[idx]

@@ -34,7 +34,11 @@ import eternityii.rustgen.RustGen
  *
  * 'clue' to print just the mandatory tile and four clue tiles.
  *
- * 'rustgen piecesfile rows cols' to generate Rust code for solving a specific puzzle.
+ * 'rustgen piecesfile [mids] [path] [random] [prefill N]' to generate Rust code for solving a specific puzzle.
+ * - mids to only use the mid tiles, otherwise use all tiles.
+ * - path to choose a fill order. Not compatible with mids, where only scanrow is supported for now.
+ * - random to choose a random placement order for the tiles.
+ * - prefill N to prefill the first N cells. If combined with random, the prefilled tiles are also chosen in random order.
  *
  * Extra parameters: use with any of the above:
  *
@@ -46,10 +50,10 @@ fun main(args: Array<String>) {
     val verboseMode = "verbose" in args
 
     val tileData = TileData("random" in args, "debug" in args)
-    val quadBuilder = QuadBuilder(tileData)
 
     when (args[0]) {
         "quad" -> {
+            val quadBuilder = QuadBuilder(tileData)
             quadBuilder.solveCorners()
             quadBuilder.solveEdges()
             quadBuilder.solveMids()
@@ -96,12 +100,37 @@ fun main(args: Array<String>) {
                 "mids" in args -> ScanrowMidsOnlyBacktrackerPath
                 else -> null
             }
-            RustGen(
-                inputFilename = args[1],
-                path = path,
-                randomOrder = "random" in args,
-                midsOnly = "mids" in args
-            ).generate()
+
+            if ("prefill" in args) {
+                val depth = args[args.indexOf("prefill") + 1].toInt()
+                try {
+                    Backtracker(
+                        tileData,
+                        path ?: ScanrowBacktrackerPath,
+                        depth,
+                        verboseMode,
+                        stopOnFirstSolution = true
+                    ).solve()
+                } catch (e: SolutionFoundException) {
+                    RustGen(
+                        tileData,
+                        inputFilename = args[1],
+                        path = path,
+                        randomOrder = "random" in args,
+                        midsOnly = "mids" in args,
+                        prefillData = e
+                    ).generate()
+                }
+
+            } else {
+                RustGen(
+                    tileData,
+                    inputFilename = args[1],
+                    path = path,
+                    randomOrder = "random" in args,
+                    midsOnly = "mids" in args
+                ).generate()
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 package eternityii.backtracker
 
 import eternityii.ProgressTracker
+import eternityii.SolutionFoundException
 import eternityii.data.Colour
 import eternityii.data.Compass
 import eternityii.data.Orientation
@@ -21,7 +22,8 @@ class Backtracker(
     private val tileData: TileData,
     private val path: BacktrackerPath,
     private val maxDepth: Int,
-    private val verboseMode: Boolean
+    private val verboseMode: Boolean,
+    private val stopOnFirstSolution: Boolean = false
 ) {
     /**
      * Whether each tile ID has been placed in placedTiles or not. Used to prevent placing duplicates.
@@ -83,15 +85,26 @@ class Backtracker(
                     }
                     if (depth == (maxDepth - 1)) {
                         numSolutions++
-                        if (verboseMode) {
+                        if (verboseMode || stopOnFirstSolution) {
                             placedTiles[depth] = id
                             placedOris[depth] = tileData.midOrisWithTwoColours[biColour]!![idx]
+                        }
+
+                        if (verboseMode) {
                             Display.buildUrl(
                                 tileData,
                                 placedTiles.map { it }.toList(),
                                 placedOris.map { it }.toList(),
                                 path.tileTypes,
                                 path.fillOrder
+                            )
+                        }
+
+                        if (stopOnFirstSolution) {
+                            throw SolutionFoundException(
+                                placedTiles.map { it }.toList(),
+                                placedOris.map { it }.toList(),
+                                path.tileTypes
                             )
                         }
                     } else {
@@ -138,15 +151,26 @@ class Backtracker(
                     }
                     if (depth == (maxDepth - 1)) {
                         numSolutions++
-                        if (verboseMode) {
+                        if (verboseMode || stopOnFirstSolution) {
                             placedTiles[depth] = id
                             placedOris[depth] = path.orientations[depth]
+                        }
+
+                        if (verboseMode) {
                             Display.buildUrl(
                                 tileData,
                                 placedTiles.map { it }.toList(),
                                 placedOris.map { it }.toList(),
                                 path.tileTypes,
                                 path.fillOrder
+                            )
+                        }
+
+                        if (stopOnFirstSolution) {
+                            throw SolutionFoundException(
+                                placedTiles.map { it }.toList(),
+                                placedOris.map { it }.toList(),
+                                path.tileTypes
                             )
                         }
                     } else {
