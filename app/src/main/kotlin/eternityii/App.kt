@@ -49,7 +49,7 @@ fun main(args: Array<String>) {
     fun Array<String>.depthArg() = this[1].toInt()
     val verboseMode = "verbose" in args
 
-    val tileData = TileData("random" in args, "debug" in args)
+    val tileData = TileData("TODO" in args, "debug" in args)
 
     when (args[0]) {
         "quad" -> {
