@@ -213,7 +213,7 @@ class RustGen(
             out.write("\nuse crate::celltype::{")
             out.write("\n    CellType, MID,")
             if (midsOnly) {
-                out.write("\n    MID_LEFT, MID_TOP, MID_TOP_LEFT,")
+                out.write("\n    MID_LEFT, MID_RIGHT, MID_TOP, MID_TOP_LEFT,")
                 out.write("\n};")
                 out.write("\nuse crate::ori::{Ori, ANY};")
             } else {
@@ -310,6 +310,7 @@ class RustGen(
                                     row == 1 -> Pair("MID_TOP", "add_tile_top")
                                     col == 1 -> Pair("MID_LEFT", "add_tile_left")
                                     row == (numRows - 2) && col == (numCols - 2) -> Pair("MID", "add_tile_final")
+                                    col == (numCols - 2) -> Pair("MID_RIGHT", "add_tile_right")
                                     else -> Pair("MID", "add_tile_mid")
                                 }
                             } else {
