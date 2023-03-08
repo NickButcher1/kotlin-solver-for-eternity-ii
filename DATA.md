@@ -105,7 +105,7 @@ These are the best results obtained with the Rust backtracker.
     - Longest run: 247B placed in 4,650s.
   - Random order:
     - 185 tiles (13x14+3) in 20,460s. Found twice.
-    - Longest run: 1.8T placed in 52,980s (and 7 threads, averaging 1.7T placed per thread).
+    - Longest run: 3.2T placed in 84,900s (and 7 threads, averaging 3.0T placed per thread).
 
 # Kotlin Backtracker Results
 

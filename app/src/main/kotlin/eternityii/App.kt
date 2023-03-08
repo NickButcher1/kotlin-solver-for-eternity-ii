@@ -121,7 +121,6 @@ fun main(args: Array<String>) {
                         prefillData = e
                     ).generate()
                 }
-
             } else {
                 RustGen(
                     tileData,
