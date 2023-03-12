@@ -173,11 +173,7 @@ class RustGen(
 
         if (prefillData != null) {
             (0 until prefillData.placedTiles.size).map { depth ->
-                val tileId = when (prefillData.tileTypes[depth]) {
-                    TileType.CORNER -> prefillData.placedTiles[depth].toInt()
-                    TileType.EDGE -> prefillData.placedTiles[depth].toInt() + 4
-                    TileType.MID -> prefillData.placedTiles[depth].toInt() + 4 + numEdges
-                }
+                val tileId = tileData.idToRealTileId(prefillData.tileTypes[depth], prefillData.placedTiles[depth]).toInt()
                 val fileTile = fileTiles[tileId]
 
                 prefillTileOris.add(
