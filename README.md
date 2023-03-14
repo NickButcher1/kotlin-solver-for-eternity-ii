@@ -39,6 +39,7 @@ Some of these have a copy of the e2pieces.txt file.
 - [lumy github repo](https://github.com/lumy/EternityII)
 - [Eternity II Java Helper](https://code.google.com/archive/p/eternity2-java-helper)
 - [Fortran solver](http://www.cristal.org/Eternity-II/shorter.html)
+- [David Barr github repo](https://github.com/david3x3x3/eternity2)
 
 ## Groups.io threads of interest
 
