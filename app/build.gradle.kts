@@ -3,7 +3,7 @@ plugins {
 
     application
 
-    id("org.jmailen.kotlinter") version "3.13.0"
+    id("org.jmailen.kotlinter") version "3.14.0"
     id("io.gitlab.arturbosch.detekt") version "1.23.1"
 }
 
