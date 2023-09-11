@@ -22,7 +22,7 @@ import java.io.File
 data class QuadSquares(
     var oris: List<List<UByte>>,
     var ids: List<List<UByte>>,
-    var tileTypes: List<TileType>
+    var tileTypes: List<TileType>,
 ) {
     fun colourOf(tileData: TileData, idx: Int, oppositeIndex: Int, compass: UByte): UByte =
         if (oppositeIndex != -1) {
@@ -44,7 +44,7 @@ data class QuadSquares(
             ids.indices.forEach { idx ->
                 out.println(
                     "${Files.formatByteListForFile(ids[idx])} " +
-                        Files.formatByteListForFile(oris[idx])
+                        Files.formatByteListForFile(oris[idx]),
                 )
             }
         }

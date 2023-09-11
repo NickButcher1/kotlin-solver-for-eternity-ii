@@ -37,7 +37,7 @@ object Display {
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 4, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     )
 
     /**
@@ -55,7 +55,7 @@ object Display {
         tileData: TileData,
         tileIds: UByteArray,
         oris: List<UByte>,
-        tileTypes: List<TileType>
+        tileTypes: List<TileType>,
     ) {
         val tileIdsForDisplay = mutableListOf<UByte>()
         var boardUrl = BASE_URL
@@ -78,7 +78,7 @@ object Display {
         boardUrl += piecesUrl
         println(
             "DISPLAY:\n    $tileTypes\n    $oris\n    " +
-                "${tileIdsForDisplay.joinToString()}\n    $boardUrl"
+                "${tileIdsForDisplay.joinToString()}\n    $boardUrl",
         )
     }
 
@@ -88,11 +88,11 @@ object Display {
         tileIds: List<UByte>,
         oris: List<UByte>,
         tileTypes: List<TileType>,
-        cellIds: List<Int>
+        cellIds: List<Int>,
     ) = buildUrl(tileData, tileIds, oris, tileTypes, cellIds)
 
     fun buildUrlForClues(
-        tileData: TileData
+        tileData: TileData,
     ) = buildUrl(
         tileData,
         (0 until tileData.clues.size).map { idx ->
@@ -102,7 +102,7 @@ object Display {
             tileData.clues[idx].orientation
         }.toList(),
         listOf(TileType.MID, TileType.MID, TileType.MID, TileType.MID, TileType.MID),
-        CLUES
+        CLUES,
     )
 
     fun buildUrl(
@@ -110,7 +110,7 @@ object Display {
         tileIds: List<UByte>,
         oris: List<UByte>,
         tileTypes: List<TileType>,
-        cellIds: List<Int>
+        cellIds: List<Int>,
     ) {
         val tileIdsForDisplay = mutableListOf<UByte>()
         var boardUrl = BASE_URL
@@ -141,7 +141,7 @@ object Display {
         boardUrl += piecesUrl
         println(
             "DISPLAY:\n    $tileTypes\n    $oris\n    " +
-                "${tileIdsForDisplay.joinToString()}\n    $boardUrl"
+                "${tileIdsForDisplay.joinToString()}\n    $boardUrl",
         )
     }
 

@@ -28,7 +28,7 @@ sealed class CellConstraint(val tileType: TileType) {
     class Solved(
         tileType: TileType,
         val tileId: UByte,
-        val orientation: UByte
+        val orientation: UByte,
     ) : CellConstraint(tileType) {
         override val numOptions: Int = 0
 
@@ -37,7 +37,7 @@ sealed class CellConstraint(val tileType: TileType) {
 
         override fun possibleColours(tileData: TileData, compass: UByte): List<UByte> =
             listOf(
-                tileData.toSide(tileType, tileId, orientation, compass)
+                tileData.toSide(tileType, tileId, orientation, compass),
             )
 
         override fun toSolved(): Solved {
@@ -50,7 +50,7 @@ sealed class CellConstraint(val tileType: TileType) {
     class FixedTileId(
         tileType: TileType,
         val tileId: UByte,
-        val orientations: MutableList<UByte>
+        val orientations: MutableList<UByte>,
     ) : CellConstraint(tileType) {
         override val numOptions: Int = orientations.size
 
@@ -61,7 +61,7 @@ sealed class CellConstraint(val tileType: TileType) {
             val possibleColours = mutableListOf<UByte>()
             for (orientation in orientations) {
                 possibleColours.add(
-                    tileData.toSide(tileType, tileId, orientation, compass)
+                    tileData.toSide(tileType, tileId, orientation, compass),
                 )
             }
             return possibleColours
@@ -79,7 +79,7 @@ sealed class CellConstraint(val tileType: TileType) {
     class FixedOrientation(
         tileType: TileType,
         val ids: MutableList<UByte>,
-        val orientation: UByte
+        val orientation: UByte,
     ) : CellConstraint(tileType) {
         override val numOptions: Int = ids.size
 
@@ -90,7 +90,7 @@ sealed class CellConstraint(val tileType: TileType) {
             val possibleColours = mutableListOf<UByte>()
             for (id in ids) {
                 possibleColours.add(
-                    tileData.toSide(tileType, id, orientation, compass)
+                    tileData.toSide(tileType, id, orientation, compass),
                 )
             }
             return possibleColours
@@ -109,7 +109,7 @@ sealed class CellConstraint(val tileType: TileType) {
     class Options(
         tileType: TileType,
         val ids: MutableList<UByte>,
-        val orientations: MutableList<UByte>
+        val orientations: MutableList<UByte>,
     ) : CellConstraint(tileType) {
         init {
             require(ids.size == orientations.size) { "ERROR" }
@@ -132,7 +132,7 @@ sealed class CellConstraint(val tileType: TileType) {
                 val id = ids[idx]
                 val orientation = orientations[idx]
                 possibleColours.add(
-                    tileData.toSide(tileType, id, orientation, compass)
+                    tileData.toSide(tileType, id, orientation, compass),
                 )
             }
             return possibleColours

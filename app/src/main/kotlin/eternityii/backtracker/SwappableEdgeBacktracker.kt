@@ -24,7 +24,7 @@ class SwappableEdgeBacktracker(
     private val tileData: TileData,
     private val path: BacktrackerPath,
     private val maxDepth: Int,
-    private val verboseMode: Boolean
+    private val verboseMode: Boolean,
 ) {
     /**
      * Whether each tile ID has been placed in placedTiles or not. Used to prevent placing duplicates.
@@ -64,7 +64,7 @@ class SwappableEdgeBacktracker(
         val rate = if (elapsedTimeSeconds == 0L) { 0 } else { numSolutions / elapsedTimeSeconds }
         println(
             "Num solutions: ${numSolutions.fmt()} for depth $maxDepth in " +
-                "$elapsedTimeSeconds seconds, ${rate.fmt()} per second"
+                "$elapsedTimeSeconds seconds, ${rate.fmt()} per second",
         )
     }
 
@@ -120,7 +120,7 @@ class SwappableEdgeBacktracker(
                                 fixedPlacedTiles.map { it }.toList(),
                                 placedOris.map { it }.toList(),
                                 path.tileTypes,
-                                path.fillOrder
+                                path.fillOrder,
                             )
                         }
                     } else {
@@ -167,7 +167,7 @@ class SwappableEdgeBacktracker(
                                 fixedPlacedTiles.map { it }.toList(),
                                 placedOris.map { it }.toList(),
                                 path.tileTypes,
-                                path.fillOrder
+                                path.fillOrder,
                             )
                         }
                     } else {

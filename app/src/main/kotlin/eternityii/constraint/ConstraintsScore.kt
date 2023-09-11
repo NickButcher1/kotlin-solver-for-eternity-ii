@@ -10,7 +10,7 @@ data class ConstraintsScore(
     private val numOptions: Int,
     private val numColourOptions: Int,
     private val numCellsForTiles: Int,
-    private val isStillSolvable: Boolean
+    private val isStillSolvable: Boolean,
 ) {
     private val score: Long = numOptions.toLong() * numColourOptions * numCellsForTiles
 

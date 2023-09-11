@@ -18,7 +18,7 @@ fun UByte.ec(clockwise: UByte): Int = (5 * this.toInt()) + clockwise.toInt()
  */
 class TileData(
     randomOrder: Boolean,
-    debugMode: Boolean
+    debugMode: Boolean,
 ) {
     /**
      * The e2pieces.txt file has one line per tile, with the edge colours in the order NESW.
@@ -32,7 +32,7 @@ class TileData(
                 splitLine[0].toUByte(),
                 splitLine[1].toUByte(),
                 splitLine[2].toUByte(),
-                splitLine[3].toUByte()
+                splitLine[3].toUByte(),
             )
         }.toList()
 
@@ -84,7 +84,7 @@ class TileData(
             List(originalInputList.size) { idx -> originalInputList[idx][0] }.toUByteArray(),
             List(originalInputList.size) { idx -> originalInputList[idx][1] }.toUByteArray(),
             List(originalInputList.size) { idx -> originalInputList[idx][2] }.toUByteArray(),
-            List(originalInputList.size) { idx -> originalInputList[idx][3] }.toUByteArray()
+            List(originalInputList.size) { idx -> originalInputList[idx][3] }.toUByteArray(),
         )
 
     /**
@@ -108,7 +108,7 @@ class TileData(
             }.toUByteArray(),
             List(inputList.size) { idx ->
                 Colour.ANY_COLOUR_TO_INDEX[inputList[idx][3]]!!.toUByte()
-            }.toUByteArray()
+            }.toUByteArray(),
         )
 
     /** Just the four corner tiles, lookup with corners[side][cornerId]. */
@@ -116,7 +116,7 @@ class TileData(
         all[0].sliceArray(0..3),
         all[1].sliceArray(0..3),
         all[2].sliceArray(0..3),
-        all[3].sliceArray(0..3)
+        all[3].sliceArray(0..3),
     )
 
     /** Just the 56 edge tiles, lookup with edges[side][edgeId]. */
@@ -124,7 +124,7 @@ class TileData(
         all[0].sliceArray(4..59),
         all[1].sliceArray(4..59),
         all[2].sliceArray(4..59),
-        all[3].sliceArray(4..59)
+        all[3].sliceArray(4..59),
     )
 
     /** Just the 196 mid tiles, lookup with mids[side][midId]. */
@@ -132,7 +132,7 @@ class TileData(
         all[0].sliceArray(60..255),
         all[1].sliceArray(60..255),
         all[2].sliceArray(60..255),
-        all[3].sliceArray(60..255)
+        all[3].sliceArray(60..255),
     )
 
     /**
@@ -198,7 +198,7 @@ class TileData(
         Clue(208U, 147U, Orientation.ANTICLOCKWISE_90, 2, 2),
         Clue(255U, 194U, Orientation.ANTICLOCKWISE_90, 2, 13),
         Clue(181U, 120U, Orientation.ANTICLOCKWISE_90, 13, 2),
-        Clue(249U, 188U, Orientation.BASE, 13, 13)
+        Clue(249U, 188U, Orientation.BASE, 13, 13),
     )
 
     /** Convenient shortcuts. */
@@ -227,7 +227,7 @@ class TileData(
                     val edgeIds = edgesWithTwoEdgeColours[biColour]!!
                     println(
                         "  $colourAnticlockwise / $colourClockwise EC ($biColour) -> " +
-                            "(${edgeIds.size}) ${edgeIds.joinToString()}"
+                            "(${edgeIds.size}) ${edgeIds.joinToString()}",
                     )
                 }
             }
@@ -286,7 +286,7 @@ class TileData(
         tileType: TileType,
         id: UByte,
         orientation: UByte,
-        compass: UByte
+        compass: UByte,
     ): UByte =
         when (tileType) {
             TileType.CORNER ->
@@ -314,7 +314,7 @@ class TileData(
             tempEdgesWithColour[1].sorted().toUByteArray(),
             tempEdgesWithColour[2].sorted().toUByteArray(),
             tempEdgesWithColour[3].sorted().toUByteArray(),
-            tempEdgesWithColour[4].sorted().toUByteArray()
+            tempEdgesWithColour[4].sorted().toUByteArray(),
         )
     }
 
@@ -335,7 +335,7 @@ class TileData(
             tempEdgesWithColour[1].sorted().toUByteArray(),
             tempEdgesWithColour[2].sorted().toUByteArray(),
             tempEdgesWithColour[3].sorted().toUByteArray(),
-            tempEdgesWithColour[4].sorted().toUByteArray()
+            tempEdgesWithColour[4].sorted().toUByteArray(),
         )
     }
 
@@ -367,7 +367,7 @@ class TileData(
             tempEdgesWithColour[1].sorted().toUByteArray(),
             tempEdgesWithColour[2].sorted().toUByteArray(),
             tempEdgesWithColour[3].sorted().toUByteArray(),
-            tempEdgesWithColour[4].sorted().toUByteArray()
+            tempEdgesWithColour[4].sorted().toUByteArray(),
         )
     }
 
@@ -431,7 +431,7 @@ class TileData(
             tempWithColour[13].sorted().distinct().toUByteArray(),
             tempWithColour[14].sorted().distinct().toUByteArray(),
             tempWithColour[15].sorted().distinct().toUByteArray(),
-            tempWithColour[16].sorted().distinct().toUByteArray()
+            tempWithColour[16].sorted().distinct().toUByteArray(),
         )
     }
 

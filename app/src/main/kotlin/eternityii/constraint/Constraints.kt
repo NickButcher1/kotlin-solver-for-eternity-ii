@@ -35,7 +35,7 @@ import eternityii.display.Display
 class Constraints(
     private val tileData: TileData,
     private val constraintData: ConstraintData,
-    private val verboseMode: Boolean
+    private val verboseMode: Boolean,
 ) {
     /**
      * constraints[row][col] returns the constraint on that grid cell.
@@ -84,63 +84,63 @@ class Constraints(
                         CellConstraint.FixedOrientation(
                             TileType.CORNER,
                             allCornerIds.toMutableList(),
-                            Orientation.CLOCKWISE_90
+                            Orientation.CLOCKWISE_90,
                         )
 
                     row == 0 && col == 15 ->
                         CellConstraint.FixedOrientation(
                             TileType.CORNER,
                             allCornerIds.toMutableList(),
-                            Orientation.HALF
+                            Orientation.HALF,
                         )
 
                     row == 15 && col == 0 ->
                         CellConstraint.FixedOrientation(
                             TileType.CORNER,
                             allCornerIds.toMutableList(),
-                            Orientation.BASE
+                            Orientation.BASE,
                         )
 
                     row == 15 && col == 15 ->
                         CellConstraint.FixedOrientation(
                             TileType.CORNER,
                             allCornerIds.toMutableList(),
-                            Orientation.ANTICLOCKWISE_90
+                            Orientation.ANTICLOCKWISE_90,
                         )
 
                     row == 0 ->
                         CellConstraint.FixedOrientation(
                             TileType.EDGE,
                             allEdgeIds.toMutableList(),
-                            Orientation.HALF
+                            Orientation.HALF,
                         )
 
                     row == 15 ->
                         CellConstraint.FixedOrientation(
                             TileType.EDGE,
                             allEdgeIds.toMutableList(),
-                            Orientation.BASE
+                            Orientation.BASE,
                         )
 
                     col == 0 ->
                         CellConstraint.FixedOrientation(
                             TileType.EDGE,
                             allEdgeIds.toMutableList(),
-                            Orientation.CLOCKWISE_90
+                            Orientation.CLOCKWISE_90,
                         )
 
                     col == 15 ->
                         CellConstraint.FixedOrientation(
                             TileType.EDGE,
                             allEdgeIds.toMutableList(),
-                            Orientation.ANTICLOCKWISE_90
+                            Orientation.ANTICLOCKWISE_90,
                         )
 
                     else ->
                         CellConstraint.Options(
                             TileType.MID,
                             allMidIds.toMutableList(),
-                            allMidOris.toMutableList()
+                            allMidOris.toMutableList(),
                         )
                 }
                 rowList.add(constraint)
@@ -234,7 +234,7 @@ class Constraints(
             tileIds,
             oris,
             tileTypes,
-            cellIds
+            cellIds,
         )
     }
 
@@ -336,7 +336,7 @@ class Constraints(
                             numColours == 1 -> "-   -+"
                             numColours < 10 -> "- $numColours -+"
                             else -> "- ${numColours.toString().padStart(2, ' ')}-+"
-                        }
+                        },
                     )
                 }
             }
@@ -390,7 +390,7 @@ class Constraints(
             numOptions(),
             numColourOptions(),
             numCellsForTiles(),
-            isStillSolvable
+            isStillSolvable,
         )
 
     /** This number should go down as the constraints are eliminated. */
@@ -459,7 +459,7 @@ class Constraints(
         id: UByte,
         orientation: UByte,
         fixRow: Int,
-        fixCol: Int
+        fixCol: Int,
     ) {
         // Fix the tile in the new cell.
         val newSolvedConstraint = CellConstraint.Solved(tileType, id, orientation)
@@ -472,7 +472,7 @@ class Constraints(
         tileType: TileType,
         id: UByte,
         fixRow: Int,
-        fixCol: Int
+        fixCol: Int,
     ) {
         val moreWork: MutableList<() -> Unit> = mutableListOf()
 
@@ -506,7 +506,7 @@ class Constraints(
                                     constraint.tileType,
                                     constraint.ids[0],
                                     row,
-                                    col
+                                    col,
                                 )
                             }
                             constraint.toSolved()
@@ -531,7 +531,7 @@ class Constraints(
                                         constraint.tileType,
                                         constraint.ids[0],
                                         row,
-                                        col
+                                        col,
                                     )
                                 }
                                 constraint.toSolved()
@@ -635,7 +635,7 @@ class Constraints(
                                 constraint.tileType,
                                 constraint.ids[0],
                                 row,
-                                col
+                                col,
                             )
                         }
                         constraint.toSolved()
@@ -667,7 +667,7 @@ class Constraints(
                                     constraint.tileType,
                                     constraint.ids[0],
                                     row,
-                                    col
+                                    col,
                                 )
                             }
                             constraint.toSolved()

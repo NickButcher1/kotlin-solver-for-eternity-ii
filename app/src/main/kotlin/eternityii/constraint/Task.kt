@@ -19,7 +19,7 @@ sealed class Task {
         val id: UByte,
         val orientation: UByte,
         val row: Int,
-        val col: Int
+        val col: Int,
     ) : Task() {
         override fun toString(): String = "Fix tile $tileType $id $orientation at ($row,$col)"
     }

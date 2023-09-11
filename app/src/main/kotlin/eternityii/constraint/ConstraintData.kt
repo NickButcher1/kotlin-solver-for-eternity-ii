@@ -11,5 +11,5 @@ import eternityii.QuadSquares
  * quadCorners[cornerId].
  */
 data class ConstraintData(
-    val quadCorners: List<QuadSquares>
+    val quadCorners: List<QuadSquares>,
 )

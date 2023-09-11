@@ -10,5 +10,5 @@ data class Clue(
     val midId: UByte,
     val orientation: UByte,
     val row: Int,
-    val col: Int
+    val col: Int,
 )

@@ -10,7 +10,7 @@ import eternityii.display.Display
  */
 @OptIn(ExperimentalUnsignedTypes::class)
 class EdgeBuilder(
-    private val tileData: TileData
+    private val tileData: TileData,
 ) {
     fun solveCornerPlusEdgesClockwise(maxDepth: Int): Partial {
         println("solveCornerPlusEdgesClockwise: depth $maxDepth")
@@ -20,7 +20,7 @@ class EdgeBuilder(
             1,
             listOf(TileType.CORNER),
             listOf(Orientation.CLOCKWISE_90),
-            (0..3).map { id -> ubyteArrayOf(id.toUByte()) }.toList()
+            (0..3).map { id -> ubyteArrayOf(id.toUByte()) }.toList(),
         )
         println("DEPTH 1 paths ${partial.ids.size}")
 
@@ -47,7 +47,7 @@ class EdgeBuilder(
             1,
             listOf(TileType.CORNER),
             listOf(Orientation.HALF),
-            (0..3).map { id -> ubyteArrayOf(id.toUByte()) }.toList()
+            (0..3).map { id -> ubyteArrayOf(id.toUByte()) }.toList(),
         )
         println("DEPTH 1 paths ${partial.ids.size}")
 
@@ -64,7 +64,7 @@ class EdgeBuilder(
             tileData,
             partial.ids[100].reversedArray(),
             partial.oris.reversed(),
-            partial.tileTypes.reversed()
+            partial.tileTypes.reversed(),
         )
 
         partial.toFile("corner-and-edges-$maxDepth-anticlockwise")
@@ -79,7 +79,7 @@ class EdgeBuilder(
             1,
             listOf(TileType.EDGE),
             listOf(Orientation.HALF),
-            (0..55).map { id -> ubyteArrayOf(id.toUByte()) }.toList()
+            (0..55).map { id -> ubyteArrayOf(id.toUByte()) }.toList(),
         )
         println("DEPTH 1 paths ${partial.ids.size}")
 
@@ -95,7 +95,7 @@ class EdgeBuilder(
     }
 
     private fun addEdgeTileToCornerClockwise(
-        inputPartial: Partial
+        inputPartial: Partial,
     ): Partial {
         val newIdsList = mutableListOf<UByteArray>()
 
@@ -114,12 +114,12 @@ class EdgeBuilder(
             inputPartial.depth + 1,
             inputPartial.tileTypes + TileType.EDGE,
             inputPartial.oris + Orientation.HALF,
-            newIdsList.toList()
+            newIdsList.toList(),
         )
     }
 
     private fun addEdgeTileToCornerAnticlockwise(
-        inputPartial: Partial
+        inputPartial: Partial,
     ): Partial {
         val newIdsList = mutableListOf<UByteArray>()
 
@@ -138,12 +138,12 @@ class EdgeBuilder(
             inputPartial.depth + 1,
             inputPartial.tileTypes + TileType.EDGE,
             inputPartial.oris + Orientation.HALF,
-            newIdsList.toList()
+            newIdsList.toList(),
         )
     }
 
     private fun addEdgeTileToEdgeClockwise(
-        inputPartial: Partial
+        inputPartial: Partial,
     ): Partial {
         val newIdsList = mutableListOf<UByteArray>()
 
@@ -166,12 +166,12 @@ class EdgeBuilder(
             inputPartial.depth + 1,
             inputPartial.tileTypes + TileType.EDGE,
             inputPartial.oris + Orientation.HALF,
-            newIdsList.toList()
+            newIdsList.toList(),
         )
     }
 
     private fun addEdgeTileToEdgeClockwiseNoCorners(
-        inputPartial: Partial
+        inputPartial: Partial,
     ): Partial {
         val newIdsList = mutableListOf<UByteArray>()
 
@@ -192,12 +192,12 @@ class EdgeBuilder(
             inputPartial.depth + 1,
             inputPartial.tileTypes + TileType.EDGE,
             inputPartial.oris + Orientation.HALF,
-            newIdsList.toList()
+            newIdsList.toList(),
         )
     }
 
     private fun addEdgeTileToEdgeAnticlockwise(
-        inputPartial: Partial
+        inputPartial: Partial,
     ): Partial {
         val newIdsList = mutableListOf<UByteArray>()
 
@@ -219,7 +219,7 @@ class EdgeBuilder(
             inputPartial.depth + 1,
             inputPartial.tileTypes + TileType.EDGE,
             inputPartial.oris + Orientation.HALF,
-            newIdsList.toList()
+            newIdsList.toList(),
         )
     }
 
@@ -294,7 +294,7 @@ class EdgeBuilder(
 
         val newPartialEdge = PartialEdge(
             8,
-            newEdgeIdsList.toList()
+            newEdgeIdsList.toList(),
         )
         newPartialEdge.toFile("edge4blocks-8-clockwise")
     }

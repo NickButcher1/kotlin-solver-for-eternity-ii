@@ -100,7 +100,7 @@ fun main(args: Array<String>) {
                 inputFilename = args[1],
                 path = path,
                 randomOrder = "random" in args,
-                midsOnly = "mids" in args
+                midsOnly = "mids" in args,
             ).generate()
         }
     }

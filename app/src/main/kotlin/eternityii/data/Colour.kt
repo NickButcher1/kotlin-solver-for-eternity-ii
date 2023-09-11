@@ -9,7 +9,7 @@ object Colour {
         9U, // Dark Blue background, yellow circular flower.
         17U, // Pink background, cyan mid, pink inner.
         5U, // Green background, thin dark blue circle.
-        13U // Maroon background, orange cross.
+        13U, // Maroon background, orange cross.
     )
 
     val EDGE_COLOUR_TO_INDEX = mapOf<UByte, UByte>(
@@ -17,7 +17,7 @@ object Colour {
         EDGE_COLOURS[1] to 1U,
         EDGE_COLOURS[2] to 2U,
         EDGE_COLOURS[3] to 3U,
-        EDGE_COLOURS[4] to 4U
+        EDGE_COLOURS[4] to 4U,
     )
 
     val NUM_EDGE_COLOURS = EDGE_COLOURS.size
@@ -39,7 +39,7 @@ object Colour {
         8U, // Dark blue background, thin orange cross.
         16U, // Dark blue background, light blue square.
         21U, // Pink background, yellow castle.
-        22U // Dark blue background, dark blue cross in pink circle.
+        22U, // Dark blue background, dark blue cross in pink circle.
     )
 
     /** For wildcard matching when looking up by colour. */
@@ -62,7 +62,7 @@ object Colour {
         MID_COLOURS[13] to 13U,
         MID_COLOURS[14] to 14U,
         MID_COLOURS[15] to 15U,
-        MID_COLOURS[16] to 16U
+        MID_COLOURS[16] to 16U,
     )
 
     val NUM_MID_COLOURS = MID_COLOURS.size
@@ -92,6 +92,6 @@ object Colour {
         't', //  8 Dark blue background, thin orange cross. MID ONLY.
         'u', // 16 Dark blue background, light blue square. MID ONLY.
         'v', // 21 Pink background, yellow castle. MID ONLY.
-        'w' //  22 Dark blue background, dark blue cross in pink circle. MID ONLY.
+        'w', //  22 Dark blue background, dark blue cross in pink circle. MID ONLY.
     )
 }

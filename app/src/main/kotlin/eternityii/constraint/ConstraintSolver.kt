@@ -7,7 +7,7 @@ import eternityii.data.TileType
 
 class ConstraintSolver(
     private val tileData: TileData,
-    private val verboseMode: Boolean
+    private val verboseMode: Boolean,
 ) {
     private val taskQueue: MutableList<Task> = mutableListOf()
 
@@ -19,7 +19,7 @@ class ConstraintSolver(
             quadBuilder.get2x2Corners(0U),
             quadBuilder.get2x2Corners(1U),
             quadBuilder.get2x2Corners(2U),
-            quadBuilder.get2x2Corners(3U)
+            quadBuilder.get2x2Corners(3U),
         )
 
         constraintData = ConstraintData(quadCorners)
@@ -48,7 +48,7 @@ class ConstraintSolver(
 
     private fun solve(
         corners: List<UByte>,
-        constraints: Constraints
+        constraints: Constraints,
     ): ConstraintsScore {
         taskQueue.add(Task.Print)
         taskQueue.add(Task.FixClue(0))
@@ -121,7 +121,7 @@ class ConstraintSolver(
             clue.midId,
             clue.orientation,
             clue.row,
-            clue.col
+            clue.col,
         )
         taskQueue.add(0, task)
     }
@@ -132,7 +132,7 @@ class ConstraintSolver(
             task.id,
             task.orientation,
             task.row,
-            task.col
+            task.col,
         )
     }
 }

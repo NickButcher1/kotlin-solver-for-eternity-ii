@@ -18,7 +18,7 @@ data class Partial(
     val depth: Int,
     var tileTypes: List<TileType> = listOf(),
     var oris: List<UByte> = listOf(),
-    var ids: List<UByteArray> = listOf()
+    var ids: List<UByteArray> = listOf(),
 ) {
     fun toFile(filename: String) {
         File("../output/$filename").printWriter().use { out ->

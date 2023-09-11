@@ -8,7 +8,7 @@ import eternityii.display.Display
  */
 @OptIn(ExperimentalUnsignedTypes::class)
 class ClueSolver(
-    private val tileData: TileData
+    private val tileData: TileData,
 ) {
     fun solve() {
         println("ClueSolver")

@@ -19,7 +19,7 @@ import eternityii.display.fmt
  */
 @OptIn(ExperimentalUnsignedTypes::class)
 class QuadBuilder(
-    private val tileData: TileData
+    private val tileData: TileData,
 ) {
     private fun QuadSquares.buildUrl(idx: Int) =
         Display.buildUrl(
@@ -27,7 +27,7 @@ class QuadBuilder(
             ids[idx],
             oris[idx],
             tileTypes,
-            ScanrowSquaresBacktrackerPath.fillOrder
+            ScanrowSquaresBacktrackerPath.fillOrder,
         )
 
     /** Get a list of all possible 2x2 top left corners, with the specific corner tile. */
@@ -98,7 +98,7 @@ class QuadBuilder(
     private fun addMidTile(
         inputQuadSquares: QuadSquares,
         westIndex: Int,
-        northIndex: Int
+        northIndex: Int,
     ): QuadSquares {
         val newOris: MutableList<List<UByte>> = mutableListOf()
         val newIds: MutableList<List<UByte>> = mutableListOf()
@@ -115,11 +115,11 @@ class QuadBuilder(
                 // first.
                 if ((inputQuadSquares.tileTypes[0] != TileType.MID || newMidId > inputQuadSquares.ids[idx][0]) &&
                     !duplicateId(
-                            inputQuadSquares.tileTypes,
-                            inputQuadSquares.ids[idx],
-                            newMidId,
-                            inputQuadSquares.ids[idx].size
-                        )
+                        inputQuadSquares.tileTypes,
+                        inputQuadSquares.ids[idx],
+                        newMidId,
+                        inputQuadSquares.ids[idx].size,
+                    )
                 ) {
                     newOris.add(inputQuadSquares.oris[idx] + possibleOris[newIdx])
                     newIds.add(inputQuadSquares.ids[idx] + newMidId)
@@ -135,7 +135,7 @@ class QuadBuilder(
         inputQuadSquares: QuadSquares,
         westIndex: Int,
         northIndex: Int,
-        orientation: UByte
+        orientation: UByte,
     ): QuadSquares {
         val newOris: MutableList<List<UByte>> = mutableListOf()
         val newIds: MutableList<List<UByte>> = mutableListOf()
@@ -152,11 +152,11 @@ class QuadBuilder(
                 if ((eastColour == Colour.MID_COLOUR_ANY || newWestColour == eastColour) &&
                     (southColour == Colour.MID_COLOUR_ANY || newNorthColour == southColour) &&
                     !duplicateId(
-                            inputQuadSquares.tileTypes,
-                            inputQuadSquares.ids[idx],
-                            newEdgeId.toUByte(),
-                            inputQuadSquares.ids[idx].size
-                        )
+                        inputQuadSquares.tileTypes,
+                        inputQuadSquares.ids[idx],
+                        newEdgeId.toUByte(),
+                        inputQuadSquares.ids[idx].size,
+                    )
                 ) {
                     newOris.add(inputQuadSquares.oris[idx] + orientation)
                     newIds.add(inputQuadSquares.ids[idx] + newEdgeId.toUByte())
@@ -172,7 +172,7 @@ class QuadBuilder(
         tileTypes: List<TileType>,
         ids: List<UByte>,
         newId: UByte,
-        depth: Int
+        depth: Int,
     ): Boolean {
         for (idx in 0 until depth) {
             if (tileTypes[idx] == tileTypes[depth] && ids[idx] == newId
@@ -236,7 +236,7 @@ class QuadBuilder(
             TileType.CORNER,
             TileType.EDGE,
             TileType.EDGE,
-            TileType.MID
+            TileType.MID,
         )
         private val TILE_TYPES_CORNER_3X3 = TILE_TYPES_CORNER_2X2 +
             listOf(
@@ -244,13 +244,13 @@ class QuadBuilder(
                 TileType.MID,
                 TileType.EDGE,
                 TileType.MID,
-                TileType.MID
+                TileType.MID,
             )
         private val TILE_TYPES_EDGE_2X2 = listOf(
             TileType.EDGE,
             TileType.EDGE,
             TileType.MID,
-            TileType.MID
+            TileType.MID,
         )
         private val TILE_TYPES_EDGE_3X3 = TILE_TYPES_EDGE_2X2 +
             listOf(
@@ -258,7 +258,7 @@ class QuadBuilder(
                 TileType.MID,
                 TileType.MID,
                 TileType.MID,
-                TileType.MID
+                TileType.MID,
             )
         private val TILE_TYPES_MIDS = listOf(TileType.MID, TileType.MID, TileType.MID, TileType.MID)
     }

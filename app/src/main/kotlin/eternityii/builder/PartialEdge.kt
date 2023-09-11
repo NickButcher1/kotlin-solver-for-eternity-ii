@@ -12,7 +12,7 @@ import java.io.File
  */
 data class PartialEdge(
     val depth: Int,
-    var ids: List<IntArray> = listOf()
+    var ids: List<IntArray> = listOf(),
 ) {
     fun toFile(filename: String) {
         var lastId1 = -1
