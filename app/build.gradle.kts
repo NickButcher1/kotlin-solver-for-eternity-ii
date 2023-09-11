@@ -4,7 +4,7 @@ plugins {
     application
 
     id("org.jmailen.kotlinter") version "3.13.0"
-    id("io.gitlab.arturbosch.detekt") version "1.22.0"
+    id("io.gitlab.arturbosch.detekt") version "1.23.1"
 }
 
 repositories {
