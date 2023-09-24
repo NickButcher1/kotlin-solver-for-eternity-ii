@@ -20,6 +20,7 @@ Solver for the Eternity II puzzle
 
 ## Other
 
+- [Record with 5 hints - 460](https://groups.io/g/eternity2/message/11082)
 - [Rowscan record 230](https://e2.bucas.name/#puzzle=Joshua_Blackwood_230&board_w=16&board_h=16&board_edges=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaafufatpduiwkphsewtglscsugaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaafpjadlipklmletillpgtuihpdeiivtiedoitdwhooulwgpmuemepwllmupcljarpjefaigoemsggivvsgcwvhudcicwuilmciiolhvtiledvmimeevcilimvcswirajsfifaoutigwcuvvdwwomvdegowieemuliouuutttudhltmsehcptsmsdpwplsjajpftratpctcitpdclimstcgtvsemptlhmmutehtvgtlghvehvgtplhddopltwdjaftrifacscitewslhoetgmhvvsgptuvmolteguogdsghcddvcucloscocsowetcfanefebacitewvwiohovmcdhslkcuhwlllshuhllssuhdswsuhqssehhsodetioonabiblratshlwcssohccdtohkdutwlqdsggllddgudmdwhddqethhetedkweopmkbafprcrahdqcsmsdcmimokvmuupkqilugsuiddosmwvddmewtovmtvhowvovmiovfabiruraqghusgpgiipgvpkipvwplqgvuikqoqvivpuqeclpvvdchlgvomvlocimbabcrwfahoqwppuoppgpkompwkeogqlkkwoqvcwwueqclecedkqegdikvktdimwkbajmfdnaqdpduqkdgqhqmsgqepksllqpoeklwuheqvquchqvqmkhiqumtmeqwpomjabpnenapkgekdckhqpdgimqkgtiqkugkwgkhvqwqdovqemdkwleuwqweqswousqbajunvjagukvcmqupkkmmqkktkkquotkgkqoqtvkohqtmklhlwqkqukwsqgushwqjajhjraakrarqnarkjankbajkjabtnajqbanvfabqfaflnafqnankbangnabwranjaar&motifs_order=jblackwood)
 - [Reddit announcement of 470](https://www.reddit.com/r/Jigsawpuzzles/comments/ijhn8f/new_best_solution_for_the_eternity_ii_puzzle_12)
 - [Exact Cover](https://www.geeksforgeeks.org/introduction-to-exact-cover-problem-and-algorithm-x)
@@ -39,9 +40,12 @@ Some of these have a copy of the e2pieces.txt file.
 - [lumy github repo](https://github.com/lumy/EternityII)
 - [Eternity II Java Helper](https://code.google.com/archive/p/eternity2-java-helper)
 - [Fortran solver](http://www.cristal.org/Eternity-II/shorter.html)
+- [David Barr github repo](https://github.com/david3x3x3/eternity2)
 
 ## Groups.io threads of interest
 
+- [Analysis of solving by skipping pieces](https://groups.io/g/eternity2/message/11103)
+- [Highest points of 480 using all 5 hints](https://groups.io/g/eternity2/topic/highest_points_of_480_with/97336163?p=,,,20,0,0,0::recentpostdate/sticky,,,20,2,0,97336163,previd%3D1679348563972647931,nextid%3D1675528432234620884&previd=1679348563972647931&nextid=1675528432234620884)
 - [Forum homepage](https://groups.io/g/eternity2)
 - [241 with completed border](https://groups.io/g/eternity2/topic/partial_solution_222_with/93737608)
 - [Joshua Blackwood post on his 230 rowscan - 21 December 2021](https://groups.io/g/eternity2/topic/230_row_scan/87893278)
