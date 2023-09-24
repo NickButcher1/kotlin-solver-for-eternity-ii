@@ -44,6 +44,7 @@ Some of these have a copy of the e2pieces.txt file.
 
 ## Groups.io threads of interest
 
+- [Analysis of solving by skipping pieces](https://groups.io/g/eternity2/message/11103)
 - [Highest points of 480 using all 5 hints](https://groups.io/g/eternity2/topic/highest_points_of_480_with/97336163?p=,,,20,0,0,0::recentpostdate/sticky,,,20,2,0,97336163,previd%3D1679348563972647931,nextid%3D1675528432234620884&previd=1679348563972647931&nextid=1675528432234620884)
 - [Forum homepage](https://groups.io/g/eternity2)
 - [241 with completed border](https://groups.io/g/eternity2/topic/partial_solution_222_with/93737608)
